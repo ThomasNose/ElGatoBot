@@ -56,12 +56,6 @@ def run():
         with open(f"logs/{message.author}/data.txt", "a") as n:
             n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
-    #@bot.listen('on_message')
-    #async def on_message(message):
-    #    if "cs" in message.content:
-    #        print(message.content)
-    #        await message.channel.send("Don't play CS")
-
     # Logging voice duration.
     @bot.listen('on_voice_state_update')
     async def Activity(member, before, after):
@@ -69,28 +63,22 @@ def run():
         makedirectory(path)
         voicelog(before, after, member, path)
 
-    #@tree.command(
-    #        name = "voice",
-    #        description = "user total time in voice (registers after a voice DC)"
-    #)
-    #@bot.command()
-    #async def voice(ctx, member: str):
-    #    try:
-    #        with open(f"logs/{member}/TotalVoiceTime.txt", "r") as a:
-    #            #await interaction.response.send_message(f"{member} " + "has been in voice channels for " + str(a.read()))
-    #            await ctx.send(f"{member} " + "has been in voice channels for " + str(a.readline()))
-    #    except:
-    #        #await interaction.response.send_message(f"{member} " + "has not spent any time in voice channels yet.")
-    #        await ctx.send(f"{member} " + "has not spent any time in voice channels yet.")
-    #    a.close()
-
     @bot.event
     async def on_ready():
         try:
             synced = await bot.tree.sync()
         except Exception as e:
             print(e)
-    
+
+        for guild in bot.guilds:
+            print(f"Guild ID: {guild.id}, Guild Name: {guild.name}")
+
+        # Accessing the command cache
+        print("Registered Commands:")
+        print(dir(bot))
+        for command in bot.commands:
+            print(f"Command Name: {command.name}")
+
     @bot.tree.command(name="voice_activity")
     @app_commands.describe(member = "discord member")
     async def voice(interaction: discord.Interaction, member: discord.Member):
@@ -100,7 +88,6 @@ def run():
         except:
             await interaction.response.send_message(f"{member} " + "has not spent any time in voice channels yet.")
         a.close()
-
 
     @bot.command()
     async def guild(ctx):

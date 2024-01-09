@@ -1,12 +1,17 @@
 import settings
 import discord
 import datetime as datetime
+import time
+import asyncio
+
 from discord import Attachment
 from discord.ext import commands
 from discord import app_commands
 from makefile import makedirectory
-#from timer import voiceactivity
+
+# Unique commands or events for ElGatoBot
 from BotListen.voice import voicelog
+from commands.flex.flex import flexing, insult
 
 
 logger = settings.logging.getLogger("bot")
@@ -74,8 +79,7 @@ def run():
             print(f"Guild ID: {guild.id}, Guild Name: {guild.name}")
 
         # Accessing the command cache
-        print("Registered Commands:")
-        print(dir(bot))
+        print("Registered Commands:")   
         for command in bot.commands:
             print(f"Command Name: {command.name}")
 
@@ -84,16 +88,27 @@ def run():
     async def voice(interaction: discord.Interaction, member: discord.Member):
         try:
             with open(f"logs/{member}/TotalVoiceTime.txt", "r") as a:
-                await interaction.response.send_message(f"{member} " + "has been in voice channels for " + str(a.readline()))
+                await interaction.response.send_message(f"{member.id} " + "has been in voice channels for " + str(a.readline()))
         except:
-            await interaction.response.send_message(f"{member} " + "has not spent any time in voice channels yet.")
+            await interaction.response.send_message(f"{member.id} " + "has not spent any time in voice channels yet.")
         a.close()
+
+    @bot.tree.command(name="flex")
+    @app_commands.describe(member = "discord member")
+    async def flex(interaction: discord.Interaction, member: discord.Member):
+        if "1178728073311563847" in [str(role.id) for role in interaction.user.roles]:
+            file = discord.File(f"commands/flex/fleximages/{flexing()}")
+            insult_str = insult()
+            await interaction.response.send_message(file = file, content = f"<@{interaction.user.id}> " + "flexed on " + f"<@{member.id}>. You {insult_str}.")
+        else:
+            file = discord.File(f"commands/flex/fleximages/noaccess/facepalmlaugh.png")
+            insult_str = insult()
+            await interaction.response.send_message(file = file, content = f"Hey everyone, look at this {insult_str}. <@{interaction.user.id}>")
 
     @bot.command()
     async def guild(ctx):
         voice_channels = ctx.guild.voice_channels
         extracted_data = [(channel.id, channel.name) for channel in voice_channels]
-        print(extracted_data)
         #await ctx.send(ctx.guild.voice_channels)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

@@ -37,7 +37,8 @@ def run():
     @bot.command(
             help="Help",
             description="Description",
-            brief="BrFalse"
+            brief="Brief",
+            enable = False
     )
     async def ping(ctx):
         """Ping Pong"""

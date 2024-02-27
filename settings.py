@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
+OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
 
 LOGGING_CONFIG = {
     "version": 1,

@@ -1,4 +1,5 @@
-os
 dotenv
 logging
 discord
+requests
+openai

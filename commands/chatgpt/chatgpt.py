@@ -3,7 +3,7 @@ from PIL import Image
 
 import requests
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="")
 #from settings import DISCORD_API_SECRET
 
 #prompt = "What is the maximum number of tokens you will use by default via the API?"

@@ -118,8 +118,6 @@ def run():
 
         if "1178728073311563847" in [str(role.id) for role in interaction.user.roles] or "1210303897768300644" in [str(role.id) for role in interaction.user.roles] or "1176134580550520842" in [str(role.id) for role in interaction.user.roles]:
             reply = gpt(ctx)
-            #print(reply)
-            #await interaction.response.send_message(content = "Prompt: " + ctx + 2*'\n' + "```"+reply+"```")#f"<@{user}>: " + f"{reply}")
             await interaction.response.send_message(content = reply)
         else:
             await interaction.response.send_message(content = f"<@{interaction.user.id}>, you don't have access to the chatgpt command yet. Command available at level 30.")
@@ -134,11 +132,6 @@ def run():
             if "1176468007384535040" in [str(role.id) for role in interaction.user.roles] or "1209447447076671508" in [str(role.id) for role in interaction.user.roles] or "1220332638334746664" in [str(role.id) for role in interaction.user.roles]:
                 ETA = int(time.time() + 60)
                 msg = await interaction.response.send_message(f"Generating image ETA, other commands won't work: <t:{ETA}:R>")
-                #generator = Craiyon()
-                #result = generator.generate(ctx)
-                #images = result.images[0]
-                #for i in images:
-                #padded_data = images + '=' * (-len(images) % 4)
                 images = imagegpt(ctx)
                 Generating = True
                 print(f"here are the images {images}")
@@ -147,11 +140,9 @@ def run():
                     img = requests.get(images)
                     with open("ai_img.png", 'wb') as f:
                         f.write(img.content)
-                        #return("ai_img.png")
                 except Exception as e:
                     print("An error occured with image ai", e)
                     await interaction.response.send_message(e)
-                #image = BytesIO(base64.decodebytes(padded_data.encode("utf-8")))
                 msg = await interaction.followup.send(content=f"Generated: {ctx}",file=discord.File("ai_img.png"))
                 Generating = False
 
@@ -165,17 +156,6 @@ def run():
         msg = await interaction.response.send_message(f"Cleaned voice logs.")
 
 
-    @bot.command()
-    async def guild(ctx):
-        voice_channels = ctx.guild.voice_channels
-        extracted_data = [(channel.id, channel.name) for channel in voice_channels]
-        print(ctx)
-        #channel = bot.get_channel(1116460991153180804)
-        channel = bot.get_channel(ctx.channel)
-        await channel.send("Beep Beep. People need to read what they're saying or else. Beep Beep.")
-            #await ctx.send(ctx.guild.voice_channels)
-        # 1027653775252520980 guild id
-        # 1116460991153180804 channel id
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 

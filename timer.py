@@ -17,12 +17,12 @@ def voiceactivity(name):
 
     data = []
     Total = 0
-    with open(f"logs/{name}/voiceactivity.txt", 'r') as file:
+    with open(f"logs/{name}/voiceactivity_dedupe.txt", 'r') as file:
         for line in file:
             data.append(json.loads(line))
 
-        even = None
-        odd = None
+    even = None
+    odd = None
 
     file.close()
 
@@ -45,5 +45,3 @@ def voiceactivity(name):
     file.close()
     
     return Total
-
-

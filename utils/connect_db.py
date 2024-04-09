@@ -1,14 +1,11 @@
-import settings
-import psycopg2 as pg
+#import ElGatoBot.settings
+import psycopg as pg
 
-postgres = settings.POSTGRES_LOGIN_DETAILS
-
-def connect_db():
-
+def connect_db(postgres):
     conn = pg.connect(
-    host=postgres["hostname"],
-    database=postgres["database"],
-    user=postgres["username"],
-    password=postgres["password"]
+        host=postgres["hostname"],
+        dbname=postgres["database"],
+        user=postgres["username"],
+        password=postgres["password1"]
     )
     return(conn)

@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 from logging.config import dictConfig
 from dotenv import load_dotenv
 
@@ -7,7 +8,7 @@ load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
-POSTGRES_LOGIN_DETAILS = os.getenv("POSTGRES_LOGIN_DETAILS")
+POSTGRES_LOGIN_DETAILS = json.loads(os.getenv("POSTGRES_LOGIN_DETAILS"))
 
 LOGGING_CONFIG = {
     "version": 1,

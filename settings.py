@@ -7,6 +7,7 @@ load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
+POSTGRES_LOGIN_DETAILS = os.getenv("POSTGRES_LOGIN_DETAILS")
 
 LOGGING_CONFIG = {
     "version": 1,

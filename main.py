@@ -18,6 +18,7 @@ from BotListen.voice import voicelog
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from utils.clean_logs import clean
+from utils.connect_db import
 
 
 logger = settings.logging.getLogger("bot")
@@ -26,6 +27,7 @@ Generating = False
 def run():
     intents = discord.Intents.default()
     intents.message_content = True
+    intents.members = True
 
     bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -155,6 +157,25 @@ def run():
         clean()
         msg = await interaction.response.send_message(f"Cleaned voice logs.")
 
+    @bot.command()
+    async def get_users(interaction: discord.Interaction):
+        # Get the guild (server) the command was sent in
+        guild = interaction.guild
+        
+        # Fetch all members to ensure the cache is populated
+        await guild.chunk()
+        
+        # Prepare a string to store user information
+        user_info = ""
+        
+        # Loop through all members in the guild
+        for member in guild.members:
+            # Append user information to the string
+            user_info += f"User: {member.name}, ID: {member.id}, Nickname: {member.display_name}, Created_at: {member.created_at} \n"
+        
+        # Send user information as a message
+        #await interaction.send(user_info)
+        print(user_info)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

@@ -1,10 +1,10 @@
 from openai import OpenAI
 from PIL import Image
+import settings
 
 import requests
 
-client = OpenAI(api_key="INSERT KEY HERE")
-#from settings import DISCORD_API_SECRET
+client = OpenAI(api_key=settings.OPENAI_API_TOKEN)
 
 def gpt(prompt: str):
     completion = client.chat.completions.create(
@@ -14,7 +14,7 @@ def gpt(prompt: str):
                 "content":prompt
             }
         ],
-        model="gpt-3.5-turbo"
+        model="gpt-3.5-turbo-0125"
     )
     return(completion.choices[0].message.content)
 

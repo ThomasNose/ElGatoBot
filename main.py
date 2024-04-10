@@ -1,17 +1,17 @@
+# External package imports
 import settings
 import discord
 import datetime as datetime
 import time
 import requests
-import base64
-import asyncio
+import random
 
+# External package specific imports
 from discord import Attachment
 from discord.ext import commands
 from discord import app_commands
 from makefile import makedirectory
-from craiyon import Craiyon
-from io import BytesIO
+
 
 # Unique commands or events for ElGatoBot
 from BotListen.voice import voicelog
@@ -19,6 +19,7 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from utils.clean_logs import clean
 from BotListen.users import user_update
+from gaming.monsters import monster_drop
 
 
 logger = settings.logging.getLogger("bot")
@@ -59,16 +60,26 @@ def run():
     # Logging messages/images in case someone thinks they're a smart arse.
     @bot.listen('on_message')
     async def on_message(message):
-        path = "logs/"+f"{str(message.author)}"
-        makedirectory(path)
-        if message.attachments:
-            path = "logs/"+f"{str(message.author)}"+"/"+"images/"
-            makedirectory(path)
-            for image in message.attachments:
-                await image.save("logs/"+f"{str(message.author)}"+"/"+"images/"+f"{image.filename}")
-        msg = message
-        with open(f"logs/{message.author}/data.txt", "a") as n:
-            n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
+        message.author
+        Drop = 5
+        Chance = random.randint(1,20)
+        if Chance == Drop and str(message.author.id) != '1192397439622205572' and str(message.channel) != '1028024995709984889':
+            monstername = monster_drop(message)
+            channel = message.channel
+            await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername}!")
+
+
+        # Commented out for now as logging messages isn't priority.
+        #path = "logs/"+f"{str(message.author)}"
+        #makedirectory(path)
+        #if message.attachments:
+        #    path = "logs/"+f"{str(message.author)}"+"/"+"images/"
+        #    makedirectory(path)
+        #    for image in message.attachments:
+        #        await image.save("logs/"+f"{str(message.author)}"+"/"+"images/"+f"{image.filename}")
+        #msg = message
+        #with open(f"logs/{message.author}/data.txt", "a") as n:
+        #    n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
     # Logging voice duration.
     @bot.listen('on_voice_state_update')
@@ -132,8 +143,8 @@ def run():
             interaction.response.send_message("Please wait, an image is already generating.")
         else:
             if "1176468007384535040" in [str(role.id) for role in interaction.user.roles] or "1209447447076671508" in [str(role.id) for role in interaction.user.roles] or "1220332638334746664" in [str(role.id) for role in interaction.user.roles]:
-                ETA = int(time.time() + 60)
-                msg = await interaction.response.send_message(f"Generating image ETA, other commands won't work: <t:{ETA}:R>")
+                ETA = int(time.time() + 30)
+                await interaction.response.send_message(f"Generating image ETA, other commands won't work: <t:{ETA}:R>")
                 images = imagegpt(ctx)
                 Generating = True
                 print(f"here are the images {images}")

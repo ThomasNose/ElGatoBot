@@ -10,7 +10,6 @@ from utils.connect_db import connect_db
 postgres = settings.POSTGRES_LOGIN_DETAILS
 
 
-
 def monster_drop(message):
     conn = connect_db(postgres)
     cur = conn.cursor()
@@ -37,11 +36,6 @@ def monster_drop(message):
 
     cur.execute(f"SELECT monstername from monsters where monsterid = {monsterid}")
     monstername = cur.fetchone()
-
-    #with open("monsters.json", "r") as file:
-    # Load the data from the file
-    #    monsternames = json.load(file)
-    #    file.close
 
     conn.close()
     return(monstername[0])

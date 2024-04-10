@@ -144,7 +144,7 @@ def run():
         else:
             if "1176468007384535040" in [str(role.id) for role in interaction.user.roles] or "1209447447076671508" in [str(role.id) for role in interaction.user.roles] or "1220332638334746664" in [str(role.id) for role in interaction.user.roles]:
                 ETA = int(time.time() + 30)
-                countdown_msg = await interaction.response.send_message(f"Generating image ETA, other commands won't work: <t:{ETA}:R>")
+                await interaction.response.send_message(f"Generating image ETA, other commands won't work: <t:{ETA}:R>")
                 images = imagegpt(ctx)
                 Generating = True
                 print(f"here are the images {images}")
@@ -156,7 +156,6 @@ def run():
                 except Exception as e:
                     print("An error occured with image ai", e)
                     await interaction.response.send_message(e)
-                await interaction.channel.delete_messages([countdown_msg])
                 msg = await interaction.followup.send(content=f"Generated: {ctx}",file=discord.File("ai_img.png"))
                 Generating = False
 

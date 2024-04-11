@@ -1,0 +1,8 @@
+{"channel": "leave me alone", "username": "webd2", "state": "joined", "time": "2024-03-15 22:55:21"}
+{"channel": "leave me alone", "username": "webd2", "state": "left", "time": "2024-03-15 22:55:24"}
+{"channel": "Waiting room", "username": "webd2", "state": "joined", "time": "2024-03-20 20:08:50"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "webd2", "state": "left", "time": "2024-03-20 20:39:22"}
+{"channel": "Waiting room", "username": "webd2", "state": "joined", "time": "2024-03-20 21:38:35"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "webd2", "state": "left", "time": "2024-03-20 22:45:05"}
+{"channel": "Waiting room", "username": "webd2", "state": "joined", "time": "2024-03-20 23:51:49"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "webd2", "state": "left", "time": "2024-03-21 00:47:05"}

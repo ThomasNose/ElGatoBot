@@ -1,0 +1,8 @@
+{"channel": "vibes", "username": "the_pierug", "state": "joined", "time": "2024-02-17 14:52:08"}
+{"channel": "vibes", "username": "the_pierug", "state": "left", "time": "2024-02-17 15:56:32"}
+{"channel": "vibes", "username": "the_pierug", "state": "joined", "time": "2024-02-24 15:36:09"}
+{"channel": "vibes", "username": "the_pierug", "state": "left", "time": "2024-02-24 16:26:13"}
+{"channel": "Waiting room", "username": "the_pierug", "state": "joined", "time": "2024-03-29 20:55:41"}
+{"channel": "Waiting room", "username": "the_pierug", "state": "left", "time": "2024-03-29 23:00:03"}
+{"channel": "Waiting room", "username": "the_pierug", "state": "joined", "time": "2024-04-06 22:52:35"}
+{"channel": "onlyfans Dont change this (myra = weeb + poo) fu thomas", "username": "the_pierug", "state": "left", "time": "2024-04-07 00:33:16"}

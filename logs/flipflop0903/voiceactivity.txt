@@ -1,0 +1,4 @@
+{"channel": "vc", "username": "flipflop0903", "state": "joined", "time": "2024-04-11 21:00:43"}
+{"channel": "onlyfans Dont change this (myra = weeb + poo) fu thomas", "username": "flipflop0903", "state": "left", "time": "2024-04-11 21:31:09"}
+{"channel": "vc", "username": "flipflop0903", "state": "joined", "time": "2024-04-11 21:40:11"}
+{"channel": "vc", "username": "flipflop0903", "state": "left", "time": "2024-04-11 21:40:18"}

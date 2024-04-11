@@ -1,0 +1,2 @@
+{"channel": "drinking chat", "username": "a51c", "state": "joined", "time": "2024-03-14 09:43:46"}
+{"channel": "drinking chat", "username": "a51c", "state": "left", "time": "2024-03-14 09:43:47"}

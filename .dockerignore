@@ -6,3 +6,5 @@ __pycache__
 ai_img.png
 logs/
 key.txt
+logs/data.txt
+logs/images/

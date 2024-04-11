@@ -1,0 +1,4 @@
+{"channel": "Waiting room", "username": "vybez9850", "state": "joined", "time": "2024-03-20 22:01:09"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "vybez9850", "state": "left", "time": "2024-03-20 22:08:36"}
+{"channel": "Waiting room", "username": "vybez9850", "state": "joined", "time": "2024-03-20 22:08:43"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "vybez9850", "state": "left", "time": "2024-03-20 22:36:58"}

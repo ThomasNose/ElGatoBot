@@ -1,0 +1,8 @@
+{"channel": "Waiting room", "username": "ireason1", "state": "joined", "time": "2024-03-20 20:16:04"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "ireason1", "state": "left", "time": "2024-03-20 22:09:19"}
+{"channel": "Waiting room", "username": "ireason1", "state": "joined", "time": "2024-03-20 22:25:30"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "ireason1", "state": "left", "time": "2024-03-20 22:44:12"}
+{"channel": "Waiting room", "username": "ireason1", "state": "joined", "time": "2024-03-23 13:53:38"}
+{"channel": "Waiting room", "username": "ireason1", "state": "left", "time": "2024-03-23 13:53:40"}
+{"channel": "drinking chat", "username": "ireason1", "state": "joined", "time": "2024-03-23 13:57:08"}
+{"channel": "drinking chat", "username": "ireason1", "state": "left", "time": "2024-03-23 13:57:09"}

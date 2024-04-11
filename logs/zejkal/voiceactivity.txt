@@ -1,0 +1,4 @@
+{"channel": "Emo boy channel", "username": "zejkal", "state": "joined", "time": "2024-03-16 14:50:12"}
+{"channel": "Emo boy channel", "username": "zejkal", "state": "left", "time": "2024-03-16 14:50:13"}
+{"channel": "Emo boy channel", "username": "zejkal", "state": "joined", "time": "2024-03-16 14:50:34"}
+{"channel": "Emo boy channel", "username": "zejkal", "state": "left", "time": "2024-03-16 14:50:36"}

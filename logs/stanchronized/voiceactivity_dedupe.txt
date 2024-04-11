@@ -1,0 +1,5 @@
+{"channel": "Waiting room", "username": "stanchronized", "state": "joined", "time": "2024-03-20 20:03:49"}
+{"channel": "\ud83d\udd34 Live sesh", "username": "stanchronized", "state": "left", "time": "2024-03-21 00:11:11"}
+{"channel": "Spooky Scary Ghosts", "username": "stanchronized", "state": "joined", "time": "2024-03-21 13:13:22"}
+{"channel": "vc", "username": "stanchronized", "state": "left", "time": "2024-03-21 16:03:28"}
+{"channel": "vibes", "username": "stanchronized", "state": "joined", "time": "2024-04-11 20:43:35"}

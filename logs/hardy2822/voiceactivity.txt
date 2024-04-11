@@ -1,0 +1,6 @@
+{"channel": "vibes", "username": "hardy2822", "state": "joined", "time": "2024-02-25 01:06:14"}
+{"channel": "onlyfans Dont change this (myra = weeb + poo) fu thomas", "username": "hardy2822", "state": "left", "time": "2024-02-25 01:09:50"}
+{"channel": "vc", "username": "hardy2822", "state": "joined", "time": "2024-02-25 01:09:52"}
+{"channel": "vc", "username": "hardy2822", "state": "left", "time": "2024-02-25 01:13:46"}
+{"channel": "vibes", "username": "hardy2822", "state": "joined", "time": "2024-02-25 01:19:28"}
+{"channel": "vibes", "username": "hardy2822", "state": "left", "time": "2024-02-25 01:19:31"}

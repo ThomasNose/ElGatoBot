@@ -63,8 +63,8 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         message.author
-        Drop = 2
-        Chance = random.randint(1,2)
+        Drop = 20
+        Chance = random.randint(1,40)
         if Chance == Drop and str(message.author.id) != '1192397439622205572' and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel

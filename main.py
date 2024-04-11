@@ -63,8 +63,8 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         message.author
-        Drop = 20
-        Chance = random.randint(1,40)
+        Drop = 2
+        Chance = random.randint(1,2)
         if Chance == Drop and str(message.author.id) != '1192397439622205572' and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel
@@ -99,11 +99,11 @@ def run():
         #    n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
     # Logging voice duration.
-    @bot.listen('on_voice_state_update')
-    async def Activity(member, before, after):
-        path = f"/home/thomaspi/ElGatoBot/logs/{member}/"
-        makedirectory(path)
-        voicelog(before, after, member, path)
+    #@bot.listen('on_voice_state_update')
+    #async def Activity(member, before, after):
+    #    path = f"/home/thomaspi/ElGatoBot/logs/{member}/"
+    #    makedirectory(path)
+    #    voicelog(before, after, member, path)
 
     @bot.event
     async def on_ready():

@@ -5,3 +5,4 @@ def makedirectory(path):
         pass
     else:
         os.makedirs(path, exist_ok=True)
+makedirectory('logging')

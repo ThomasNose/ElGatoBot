@@ -1,14 +1,28 @@
 import os
 import logging
 import json
+import boto3
 from logging.config import dictConfig
-from dotenv import load_dotenv
+from makefile import makedirectory
 
-load_dotenv()
+makedirectory('logging')
 
-DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
-OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
-POSTGRES_LOGIN_DETAILS = json.loads(os.getenv("POSTGRES_LOGIN_DETAILS"))
+#from dotenv import load_dotenv
+
+#load_dotenv()
+
+
+client = boto3.client('secretsmanager')
+secret_name = "SettingsSecrets"
+response = client.get_secret_value(SecretId=secret_name)
+secret = json.loads(response['SecretString'])
+#print(secret)
+DISCORD_API_SECRET = secret["DISCORD_API_SECRET"]
+OPENAI_API_TOKEN = secret["OPENAI_API_TOKEN"]
+POSTGRES_LOGIN_DETAILS = json.loads(secret["POSTGRES_LOGIN_DETAILS"])
+#DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
+#OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
+#POSTGRES_LOGIN_DETAILS = json.loads(os.getenv("POSTGRES_LOGIN_DETAILS"))
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -35,7 +49,7 @@ LOGGING_CONFIG = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "logs/infos.Log",
+            "filename": "/logs/infos.Log",
             "mode": "w",
             "formatter": "verbose"
         }
@@ -54,4 +68,4 @@ LOGGING_CONFIG = {
     }
 
 }
-dictConfig(LOGGING_CONFIG)
+#dictConfig(LOGGING_CONFIG)

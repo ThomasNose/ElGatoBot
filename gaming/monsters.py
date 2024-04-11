@@ -39,3 +39,21 @@ def monster_drop(message):
 
     conn.close()
     return(monstername[0])
+
+def my_monsters(guild, user):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+
+    userid = user
+    guildid = guild
+    query = f"SELECT m.monstername, count(*) FROM usermonsters u \
+            JOIN discordusers d ON u.userid = d.userid \
+            JOIN monsters m ON u.monsterid = m.monsterid \
+            WHERE u.userid = cast({userid} as varchar) and guildid = cast({guildid} as varchar) \
+            GROUP BY m.monstername \
+            ORDER BY 2 desc"
+    cur.execute(query)
+    mine = cur.fetchall()
+
+    conn.close()
+    return(mine)

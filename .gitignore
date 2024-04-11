@@ -162,7 +162,5 @@ cython_debug/
 #.idea/
 
 # Other stuff (user defined usually)
-commands/flex/fleximages/
-commands/flex/insults.txt
-commands/flex/insults_swedish.txt
 ai_img.png
+Dockerpass

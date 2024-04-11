@@ -1,5 +1,4 @@
 from openai import OpenAI
-from PIL import Image
 import settings
 
 import requests

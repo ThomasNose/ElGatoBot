@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
+import os
 
+curr_dir = os.getcwd()
 
 def format_seconds(seconds):
     # Calculate days, hours, minutes, and remaining seconds
@@ -17,7 +19,7 @@ def voiceactivity(name):
 
     data = []
     Total = 0
-    with open(f"logs/{name}/voiceactivity_dedupe.txt", 'r') as file:
+    with open(f"{curr_dir}/logs/{name}/voiceactivity_dedupe.txt", 'r') as file:
         for line in file:
             data.append(json.loads(line))
 
@@ -40,7 +42,7 @@ def voiceactivity(name):
             odd = None
 
     Total = format_seconds(Total)
-    with open(f"logs/{name}/TotalVoiceTime.txt", 'w') as file:
+    with open(f"{curr_dir}/logs/{name}/TotalVoiceTime.txt", 'w') as file:
         file.write(str(Total))
     file.close()
     

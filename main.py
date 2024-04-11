@@ -99,11 +99,11 @@ def run():
         #    n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
     # Logging voice duration.
-    @bot.listen('on_voice_state_update')
-    async def Activity(member, before, after):
-        path = f"/home/thomaspi/ElGatoBot/logs/{member}/"
-        makedirectory(path)
-        voicelog(before, after, member, path)
+    #@bot.listen('on_voice_state_update')
+    #async def Activity(member, before, after):
+    #    path = f"/home/thomaspi/ElGatoBot/logs/{member}/"
+    #    makedirectory(path)
+    #    voicelog(before, after, member, path)
 
     @bot.event
     async def on_ready():

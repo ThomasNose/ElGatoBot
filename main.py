@@ -11,6 +11,8 @@ from discord import Attachment
 from discord.ext import commands
 from discord import app_commands
 from makefile import makedirectory
+from discord.ui import Button
+from discord import ButtonStyle
 
 
 # Unique commands or events for ElGatoBot
@@ -19,7 +21,7 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from utils.clean_logs import clean
 from BotListen.users import user_update
-from gaming.monsters import monster_drop
+from gaming.monsters import monster_drop, my_monsters
 
 
 logger = settings.logging.getLogger("bot")
@@ -61,15 +63,30 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         message.author
-        Drop = 5
-        Chance = random.randint(1,20)
+        Drop = 20
+        Chance = random.randint(1,40)
         if Chance == Drop and str(message.author.id) != '1192397439622205572' and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel
             await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername}!")
 
-
-        # Commented out for now as logging messages isn't priority.
+    @bot.tree.command(name="monsters_collection")
+    @app_commands.describe(member = "discord member's monsters")
+    async def collection(interaction: discord.Interaction, member: discord.Member):
+        usermonsters = my_monsters(interaction.guild.id,member.id)
+        
+        
+        embed = discord.Embed(
+            colour=discord.Colour.dark_teal(),
+            description=f"------<@{member.id}>'s monster collection------",
+            title="Monster collection list"
+        )
+        for monster, count in usermonsters:
+            # Add each monster's information as a field in the embed
+            embed.add_field(name=monster, value=f"Count: {count}", inline=True)
+        await interaction.response.send_message(embed=embed)
+        # Commented out for now as logging messages i
+        # sn't priority.
         #path = "logs/"+f"{str(message.author)}"
         #makedirectory(path)
         #if message.attachments:

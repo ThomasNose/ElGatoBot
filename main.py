@@ -63,9 +63,10 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         message.author
-        Drop = 20
-        Chance = random.randint(1,40)
-        if Chance == Drop and str(message.author.id) != '1192397439622205572' and str(message.channel) != '1028024995709984889':
+        Drop = 25
+        Chance = random.randint(1,50)
+        # If person rolls DROP and isn't the bot and isn't a specific channel
+        if Chance == Drop and str(message.author.id) != '1228351716072886375' and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel
             await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername}!")

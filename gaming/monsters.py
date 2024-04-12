@@ -3,9 +3,9 @@ import pandas as pd
 import settings
 import uuid
 import datetime as datetime
-import json
 
 from utils.connect_db import connect_db
+from gaming.roll import CustomDistributionModel
 
 postgres = settings.POSTGRES_LOGIN_DETAILS
 
@@ -14,11 +14,26 @@ def monster_drop(message):
     conn = connect_db(postgres)
     cur = conn.cursor()
 
+    # Message contents
     userid = message.author.id
     content = message.content
     created = message.created_at
-    # Append user information as a dictionary
-    monsterid = random.randint(1,10)
+
+
+    rarity_names = {"COMMON": "1", "UNCOMMON": -2, "RARE": -3, "MYTHICAL": -4, "LEGENDARY": -5}
+
+    rarity= gen_rarity()
+    cur.execute(f"SELECT monsterid FROM monsters WHERE rarity = '{rarity}'")
+    monster_list = cur.fetchall()
+    conn.commit()
+
+    # If not configured yet then this will essentially give an "iou"
+    if len(monster_list) > 0:
+        id = random.choice(monster_list)
+        monsterid = id[0]
+    else:
+        monsterid = rarity_names[rarity]
+
     data = {
         "monsterkey": uuid.uuid5(uuid.NAMESPACE_DNS, content + str(created)),
         "monsterid": monsterid,
@@ -26,9 +41,8 @@ def monster_drop(message):
         "guildid": str(message.guild.id),
         "dropped_at": message.created_at
     }
-
     # Construct the SQL query
-    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {data['monsterid']}, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
+    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {int(data['monsterid'])}, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
 
     cur.execute(query)
 
@@ -38,7 +52,10 @@ def monster_drop(message):
     monstername = cur.fetchone()
 
     conn.close()
-    return(monstername[0])
+    try:
+        return(monstername[0])
+    except:
+        return(f"I.O.U one {rarity}")
 
 def my_monsters(guild, user):
     conn = connect_db(postgres)
@@ -57,3 +74,14 @@ def my_monsters(guild, user):
 
     conn.close()
     return(mine)
+
+
+def gen_rarity():
+    """
+    Generating number based on % distribution to decide what type of
+    monster pool to randomly choose from.
+    """
+    model = CustomDistributionModel()
+    RARITY = model.generate_sample()
+
+    return(RARITY)

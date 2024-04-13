@@ -1,4 +1,4 @@
-from timer import voiceactivity
+from utils.timer import voiceactivity
 import datetime as datetime
 import json
 

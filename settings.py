@@ -1,15 +1,15 @@
 import os
 import logging
 import json
-#import boto3
+import boto3
 from logging.config import dictConfig
 from utils.makefile import makedirectory
 
 makedirectory('logging')
 
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 
 client = boto3.client('secretsmanager')

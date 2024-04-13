@@ -91,16 +91,16 @@ def run():
     
         # Commented out for now as logging messages
         # isn't priority.
-        #path = "logs/"+f"{str(message.author)}"
-        #makedirectory(path)
-        #if message.attachments:
-        #    path = "logs/"+f"{str(message.author)}"+"/"+"images/"
-        #    makedirectory(path)
-        #    for image in message.attachments:
-        #        await image.save("logs/"+f"{str(message.author)}"+"/"+"images/"+f"{image.filename}")
-        #msg = message
-        #with open(f"logs/{message.author}/data.txt", "a") as n:
-        #    n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
+        path = "logs/"+f"{str(message.author.id)}"
+        makedirectory(path)
+        if message.attachments:
+            path = "logs/"+f"{str(message.author.id)}"+"/"+"images/"
+            makedirectory(path)
+            for image in message.attachments:
+                await image.save("logs/"+f"{str(message.author.id)}"+"/"+"images/"+f"{image.filename}")
+        msg = message
+        with open(f"logs/{message.author.id}/data.txt", "a") as n:
+            n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
     @bot.tree.command(name="monsters_collection")
     @app_commands.describe(member = "discord member's monsters")

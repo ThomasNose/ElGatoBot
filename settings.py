@@ -25,7 +25,7 @@ POSTGRES_LOGIN_DETAILS = json.loads(secret["POSTGRES_LOGIN_DETAILS"])
 #POSTGRES_LOGIN_DETAILS = json.loads(os.getenv("POSTGRES_LOGIN_DETAILS"))
 
 # Can create, delete, and draw giveaways
-GIVEAWAY_CONTROL = ["1193929575974043688"]
+GIVEAWAY_CONTROL = [""]
 UTILITY = [""]
 
 LOGGING_CONFIG = {

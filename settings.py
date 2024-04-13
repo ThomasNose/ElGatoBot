@@ -3,7 +3,7 @@ import logging
 import json
 import boto3
 from logging.config import dictConfig
-from makefile import makedirectory
+from utils.makefile import makedirectory
 
 makedirectory('logging')
 
@@ -23,6 +23,10 @@ POSTGRES_LOGIN_DETAILS = json.loads(secret["POSTGRES_LOGIN_DETAILS"])
 #DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 #OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
 #POSTGRES_LOGIN_DETAILS = json.loads(os.getenv("POSTGRES_LOGIN_DETAILS"))
+
+# Can create, delete, and draw giveaways
+GIVEAWAY_CONTROL = [""]
+UTILITY = [""]
 
 LOGGING_CONFIG = {
     "version": 1,

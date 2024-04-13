@@ -1,13 +1,8 @@
 import os
 import json
 
-curr_dir = os.getcwd()
-logs = f"{curr_dir}/logs"
-try:
-	A = os.listdir(logs)
-except:
-	print("Broken for now")
 exceptions = []
+logs = "logs"
 
 def clean():
     for file in A:

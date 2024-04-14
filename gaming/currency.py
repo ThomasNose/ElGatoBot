@@ -10,7 +10,7 @@ def message_money_gain(points, message):
     cur = conn.cursor()
 
     # uuidv5 unique per user
-    balanceid = uuid.uuid5(uuid.NAMESPACE_DNS, str(message.author.id) + "balance")
+    balanceid = uuid.uuid5(uuid.NAMESPACE_DNS, str(message.author.id) + str(message.guild.id) + "balance")
 
     # Checking when the latest meseage was sent to include a 5 second message cooldown
     cur.execute(f"SELECT latest_message FROM user_balance \

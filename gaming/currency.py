@@ -15,11 +15,13 @@ def message_money_gain(points, message):
     # Checking when the latest meseage was sent to include a 5 second message cooldown
     cur.execute(f"SELECT latest_message FROM user_balance \
                 WHERE userid = '{message.author.id}' and guildid = '{message.guild.id}' and currencyid = 1")
-    
-    previous = cur.fetchone()[0]
-    current = message.created_at.replace(tzinfo=None)
-    if abs((previous - current).total_seconds()) < 5:
-        return()
+    try:
+        previous = cur.fetchone()[0]
+        current = message.created_at.replace(tzinfo=None)
+        if abs((previous - current).total_seconds()) < 5:
+            return()
+    except:
+        previous = 0
 
     cur.execute(f"INSERT INTO user_balance (balanceid, userid, guildid, currencyid, amount, latest_message) \
                 VALUES ('{balanceid}', '{message.author.id}', '{message.guild.id}', 1, {points}, now()) \

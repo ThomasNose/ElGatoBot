@@ -26,6 +26,5 @@ def user_balance(message):
                 JOIN currencies c on b.currencyid = c.currencyid \
                 WHERE b.userid = '{message.user.id}' and b.guildid = '{message.guild.id}' and c.currencyid = 1")
     results = cur.fetchall()
-    print(results)
     conn.close()
     return(results)

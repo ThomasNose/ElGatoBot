@@ -90,7 +90,6 @@ def run():
 
         msgsize = len(message.content)
         if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):
-            print(round(msgsize/500, 2))
             message_money_gain(round(msgsize/250, 2), message)
 
     

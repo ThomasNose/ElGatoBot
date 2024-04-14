@@ -9,6 +9,7 @@ def message_money_gain(points, message):
     conn = connect_db(postgres)
     cur = conn.cursor()
 
+    points = 0.1
     # uuidv5 unique per user
     balanceid = uuid.uuid5(uuid.NAMESPACE_DNS, str(message.author.id) + str(message.guild.id) + "balance")
 
@@ -18,7 +19,7 @@ def message_money_gain(points, message):
     try:
         previous = cur.fetchone()[0]
         current = message.created_at.replace(tzinfo=None)
-        if abs((previous - current).total_seconds()) < 5:
+        if abs((previous - current).total_seconds()) < 30:
             return()
     except:
         previous = 0

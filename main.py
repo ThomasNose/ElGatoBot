@@ -23,6 +23,7 @@ from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giv
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from gaming.monsters import monster_drop, my_monsters
+from gaming.currency import message_money_gain, user_balance
 
 logger = settings.logging.getLogger("bot")
 Generating = False
@@ -79,14 +80,18 @@ def run():
     # Logging messages/images in case someone thinks they're a smart arse.
     @bot.listen('on_message')
     async def on_message(message):
-        message.author
-        Drop = 5
-        Chance = random.randint(1,20)
+        Drop = 25
+        Chance = random.randint(1,50)
         # If person rolls DROP and isn't the bot and isn't a specific channel
         if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel
             await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername} during the increased drop rate!")
+
+        msgsize = len(message.content)
+        if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):
+            print(round(msgsize/500, 2))
+            message_money_gain(round(msgsize/250, 2), message)
 
     
         # Commented out for now as logging messages
@@ -115,6 +120,20 @@ def run():
         for monster, count in usermonsters:
             # Add each monster's information as a field in the embed
             embed.add_field(name=monster, value=f"Count: {count}", inline=True)
+        await interaction.response.send_message(embed=embed)
+
+    @bot.tree.command(name="balance", description="Discord member's balance")
+    async def balance(interaction: discord.Interaction):
+        userbalance = user_balance(interaction)
+        
+        embed = discord.Embed(
+            colour=discord.Colour.dark_teal(),
+            description=f"<@{interaction.user.id}>'s balance",
+            title=""
+        )
+        for value, currency in userbalance:
+            # Add each monster's information as a field in the embed
+            embed.add_field(name=currency+"s", value=round(value,2), inline=True)
         await interaction.response.send_message(embed=embed)
 
 

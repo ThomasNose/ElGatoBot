@@ -30,7 +30,8 @@ def user_update(users):
     placeholders = ','.join(['%s'] * len(df.columns))
 
     # Construct the SQL query
-    query = f'INSERT INTO discordusers ({columns}) VALUES ({placeholders})'
+    query = f'INSERT INTO discordusers ({columns}) VALUES ({placeholders}) \
+            ON CONFLICT (userid) DO NOTHING'
 
     # Execute the query
     data = df.to_records(index=False).tolist()

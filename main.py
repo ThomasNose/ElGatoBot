@@ -6,11 +6,8 @@ import requests
 import random
 
 # External package specific imports
-from discord import Attachment
 from discord.ext import commands
 from discord import app_commands
-from discord.ui import Button
-from discord import ButtonStyle
 
 
 # Unique commands or events for ElGatoBot
@@ -22,6 +19,7 @@ from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
+from trading.trades import trade_monsters, trade_accept
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance
 
@@ -287,6 +285,14 @@ def run():
         else:
             await interaction.response.send_message(f"You have entered the {ctx} giveaway!")
 
+
+    @bot.tree.command(name="trade", description="Trade with users.")
+    async def trade(interaction: discord.Interaction, member: discord.Member, myitem: str, theiritem: str):
+        await trade_monsters(interaction, member, myitem, theiritem)
+        
+    @bot.tree.comand(name="trade accept", description="Accept trade from user.")
+    async def accept(interaction: discord.Interaction, member: discord.Member):
+        await trade_accept(interaction, member)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

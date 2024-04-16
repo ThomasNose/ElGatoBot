@@ -10,11 +10,8 @@ async def trade_monsters(interaction, member, myitem, theiritem):
     # Check if trader already has a trade request
     ongoing = await checking.ongoing(cur, interaction)
     if ongoing == True:
-        print("Ongoing")
         conn.close()
         return(await interaction.response.send_message("You already have a trade open, type /cancel to cancel it."))
-    else:
-        print("No ongoing trade", ongoing)
 
     # Returning list of monsters to check valid names
     valid = await checking.valid(cur, interaction, myitem, theiritem)
@@ -65,10 +62,10 @@ async def trade_accept(interaction, member):
 
         # keys[0] is their monsterkey and keys[1] is your monsterkey
         keys = await checking.available(cur, interaction, member, results[3], results[2])
-        print(keys)
         if keys[0] == "Invalid":
             return(await interaction.response.send_message(f"Trade no longer valid, please decline <@{member.id}>'s trade or they can cancel it."))
-            
+
+        # Update userid related to a monsterkey i.e. trade the keys 
         query = f"UPDATE usermonsters \
                 SET userid = '{interaction.user.id}' \
                 WHERE monsterkey = '{keys[1]}'; \
@@ -77,6 +74,15 @@ async def trade_accept(interaction, member):
                 WHERE monsterkey = '{keys[0]}'"
         cur.execute(query)
         conn.commit()
+        
+        # Inserting trade information into history table
+        cur.execute(f"INSERT INTO monster_trades_history \
+                    SELECT mt.trader, mt.recipient, mt.trader_item, mt.recipient_item, mt.created_at, mt.guildid, now() \
+                    FROM monster_trades mt\
+                    WHERE mt.recipient = '{interaction.user.id}' and mt.trader = '{member.id}'")
+        conn.commit()
+
+        # Delete trade from active trades
         cur.execute(f"delete from monster_trades \
                     WHERE trader = '{member.id}'")
         conn.commit()

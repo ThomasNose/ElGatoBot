@@ -49,8 +49,6 @@ async def trade_accept(interaction, member):
     cur = conn.cursor()
     # Get the trade information
     cur.execute(f"SELECT trader, recipient, trader_item, recipient_item FROM monster_trades mt \
-                JOIN monsters m on mt.trader_item  = m.monstername \
-                JOIN monsters m2 on mt.recipient_item  = m2.monstername\
                 WHERE trader = '{member.id}' and recipient = '{interaction.user.id}' and guildid = '{interaction.guild.id}'")
     results = cur.fetchone()
 

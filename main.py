@@ -19,7 +19,7 @@ from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
-from trading.trades import trade_monsters, trade_accept
+from trading.trades import trade_monsters, trade_accept, trade_cancel
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance
 
@@ -283,16 +283,25 @@ def run():
         elif giveaway_data == "Already entered":
             await interaction.response.send_message("You've already entered that giveaway.")
         else:
-            await interaction.response.send_message(f"You have entered the {ctx} giveaway!")
+            await interaction.response.send_message(f"You have entered the **{ctx}** giveaway!")
 
 
     @bot.tree.command(name="trade", description="Trade with users.")
     async def trade(interaction: discord.Interaction, member: discord.Member, myitem: str, theiritem: str):
         await trade_monsters(interaction, member, myitem, theiritem)
         
-    @bot.tree.comand(name="trade accept", description="Accept trade from user.")
+    @bot.tree.command(name="accept", description="Accept trade from user.")
     async def accept(interaction: discord.Interaction, member: discord.Member):
         await trade_accept(interaction, member)
+
+    @bot.tree.command(name="decline", description="Decline trade from user.")
+    async def decline(interaction: discord.Interaction, member: discord.Member):
+        # For now the trader can only have 1 trade so essentially need to call the cancel trade func
+        await trade_cancel(interaction, member.id)
+
+    @bot.tree.command(name="cancel", description="Cancel trade.")
+    async def cancel(interaction: discord.Interaction):
+        await trade_cancel(interaction, interaction.user.id)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

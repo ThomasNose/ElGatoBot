@@ -66,13 +66,12 @@ async def trade_accept(interaction, member):
             return(await interaction.response.send_message(f"Trade no longer valid, please decline <@{member.id}>'s trade or they can cancel it."))
 
         # Update userid related to a monsterkey i.e. trade the keys 
-        query = f"UPDATE usermonsters \
+        cur.execute(f"UPDATE usermonsters \
                 SET userid = '{interaction.user.id}' \
                 WHERE monsterkey = '{keys[1]}'; \
                 UPDATE usermonsters \
                 SET userid = '{member.id}' \
-                WHERE monsterkey = '{keys[0]}'"
-        cur.execute(query)
+                WHERE monsterkey = '{keys[0]}'")
         conn.commit()
         
         # Inserting trade information into history table

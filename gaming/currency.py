@@ -42,3 +42,25 @@ def user_balance(message):
     results = cur.fetchall()
     conn.close()
     return(results)
+
+async def pay_user(interaction, member, payment):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    cur.execute(f"SELECT amount FROM user_balance \
+            WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}'")
+    # Rounding to 4 DP due to some floats being off by some amount e.g. 4.9999999999999964
+    suff = round(float(cur.fetchone()[0]),4)
+    if payment > suff:
+        return(await interaction.response.send_message(f"You don't have the funds for that big man."))
+    
+    # Do the exchanger in a single query so there's no chance of duplication
+    query = f"UPDATE user_balance \
+            SET amount = amount + {payment} \
+            WHERE userid = '{member.id}' AND guildid = '{interaction.guild.id}'; \
+            UPDATE user_balance \
+            SET amount = amount - {payment} \
+            WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}'"
+    cur.execute(query)
+    conn.commit()
+    conn.close()
+    return(await interaction.response.send_message(f"<@{interaction.user.id}> paid <@{member.id}> {payment} coins."))

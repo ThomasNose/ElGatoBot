@@ -21,7 +21,7 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from trading.trades import trade_monsters, trade_accept, trade_cancel
 from gaming.monsters import monster_drop, my_monsters
-from gaming.currency import message_money_gain, user_balance
+from gaming.currency import message_money_gain, user_balance, pay_user
 
 logger = settings.logging.getLogger("bot")
 Generating = False
@@ -286,7 +286,7 @@ def run():
             await interaction.response.send_message(f"You have entered the **{ctx}** giveaway!")
 
 
-    @bot.tree.command(name="trade", description="Trade with users.")
+    @bot.tree.command(name="trade", description="Trade with users. e.g. /trade @user your_item, their_item")
     async def trade(interaction: discord.Interaction, member: discord.Member, myitem: str, theiritem: str):
         await trade_monsters(interaction, member, myitem, theiritem)
         
@@ -299,9 +299,13 @@ def run():
         # For now the trader can only have 1 trade so essentially need to call the cancel trade func
         await trade_cancel(interaction, member.id)
 
-    @bot.tree.command(name="cancel", description="Cancel trade.")
+    @bot.tree.command(name="cancel", description="Cancel your trade.")
     async def cancel(interaction: discord.Interaction):
         await trade_cancel(interaction, interaction.user.id)
+
+    @bot.tree.command(name="pay", description="Pay a user coins.")
+    async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):
+        await pay_user(interaction, member, amount)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

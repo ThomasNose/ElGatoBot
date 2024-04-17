@@ -46,6 +46,8 @@ def user_balance(message):
 async def pay_user(interaction, member, payment):
     conn = connect_db(postgres)
     cur = conn.cursor()
+    if payment <= 0:
+        return(await interaction.response.send_message(f"Payments must be positive and non-zero."))
     cur.execute(f"SELECT amount FROM user_balance \
             WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}'")
     # Rounding to 4 DP due to some floats being off by some amount e.g. 4.9999999999999964

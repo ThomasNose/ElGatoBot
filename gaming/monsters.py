@@ -17,8 +17,16 @@ def monster_drop(message):
     # Message contents
     userid = message.author.id
     content = message.content
-    created = message.created_at
+    created = message.created_at.replace(tzinfo=None)
 
+    # As well as a 2% drop chance, I'm manually limiting drops to once a minute 
+    # to avoid pseudo-random non-random drops.
+    cur.execute(f"SELECT MAX(dropped_at) from usermonsters \
+                WHERE guildid = '{message.guild.id}'")
+    # allow being the latest drop.
+    allow = cur.fetchone()
+    if abs((created - allow[0]).total_seconds()) < 60:
+        return(None)
 
     rarity_names = {"COMMON": "1", "UNCOMMON": -2, "RARE": -3, "MYTHICAL": -4, "LEGENDARY": -5}
 

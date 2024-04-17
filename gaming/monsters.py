@@ -17,10 +17,18 @@ def monster_drop(message):
     # Message contents
     userid = message.author.id
     content = message.content
-    created = message.created_at
+    created = message.created_at.replace(tzinfo=None)
 
+    # As well as a 2% drop chance, I'm manually limiting drops to once a minute 
+    # to avoid pseudo-random non-random drops.
+    cur.execute(f"SELECT MAX(dropped_at) from usermonsters \
+                WHERE guildid = '{message.guild.id}'")
+    # allow being the latest drop.
+    #allow = cur.fetchone()
+    #if abs((created - allow[0]).total_seconds()) < 60:
+    #    return(None)
 
-    rarity_names = {"COMMON": "1", "UNCOMMON": -2, "RARE": -3, "MYTHICAL": -4, "LEGENDARY": -5}
+    #rarity_names = {"COMMON": "1", "UNCOMMON": -2, "RARE": -3, "MYTHICAL": -4, "LEGENDARY": -5}
 
     rarity= gen_rarity()
     cur.execute(f"SELECT monsterid FROM monsters WHERE rarity = '{rarity}'")
@@ -28,11 +36,11 @@ def monster_drop(message):
     conn.commit()
 
     # If not configured yet then this will essentially give an "iou"
-    if len(monster_list) > 0:
-        id = random.choice(monster_list)
-        monsterid = id[0]
-    else:
-        monsterid = rarity_names[rarity]
+    #if len(monster_list) > 0:
+    id = random.choice(monster_list)
+    monsterid = id[0]
+    #else:
+    #    monsterid = rarity_names[rarity]
 
     data = {
         "monsterkey": uuid.uuid5(uuid.NAMESPACE_DNS, content + str(created)),
@@ -52,10 +60,10 @@ def monster_drop(message):
     monstername = cur.fetchone()
 
     conn.close()
-    try:
-        return(monstername[0])
-    except:
-        return(f"I.O.U one {rarity}")
+    #try:
+    return(monstername[0])
+    #except:
+    #    return(f"I.O.U one {rarity}")
 
 def my_monsters(guild, user):
     conn = connect_db(postgres)

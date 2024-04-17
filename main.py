@@ -84,7 +84,8 @@ def run():
         if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':
             monstername = monster_drop(message)
             channel = message.channel
-            await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername} during the increased drop rate!")
+            if monstername != None:
+                await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername} during the increased drop rate!")
 
         msgsize = len(message.content)
         if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):

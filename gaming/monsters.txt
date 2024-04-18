@@ -1,0 +1,33 @@
+monsterid,monstername,species,gender,rarity
+1,Meewa,Humanoid,Female,COMMON
+2,Frostgrog,Humanoid,Male,COMMON
+3,Mårten,Quadruped,Male,COMMON
+4,Gorp,Humanoid,Male,COMMON
+5,Gorpet,Humanoid,Female,COMMON
+6,Ooga,Ghost,N/A,COMMON
+7,Serpentine,Reptile,Male,COMMON
+8,Fågell,Humanoid,Male,COMMON
+9,Magirol,Aquatic,Female,COMMON
+10,Percival the 4th,Aquatic,Male,COMMON
+11,Fluffletail,Fairy,Male,UNCOMMON
+12,Sparklizard,Dragon,Female,UNCOMMON
+13,Coraloon,Aquatic,Male,UNCOMMON
+14,Rockhopper,Rock,N/A,UNCOMMON
+15,Blazeblade,Beast,Female,UNCOMMON
+16,Leafwhisper,Plant,Male,UNCOMMON
+17,Frostfang,Ice,Male,UNCOMMON
+18,Shadowpaw,Ghost,N/A,UNCOMMON
+19,Sunnybloom,Plant,Female,UNCOMMON
+20,Duskmaw,Ghost,N/A,RARE
+21,Tidecaller,Aquatic,Female,RARE
+22,Thunderhorn,Beast,Male,RARE
+23,Emberflame,Beast,N/A,RARE
+24,Aurorashift,Ice,Female,RARE
+25,Boulderback,Rock,N/A,RARE
+26,Celestine,Celestial,Female,MYTHICAL
+27,Galewing,Flying,Male,MYTHICAL
+28,Seraphflare,Beast,Male,MYTHICAL
+29,Thundersurge,Dragon,Female,MYTHICAL
+30,Mystiquill,Oracle,N/A,LEGENDARY
+1000,MrBeast,Humanoid,Male,UNOBTAINABLE
+1001,kk's gaming chair,Inanimate,Female,UNOBTAINABLE

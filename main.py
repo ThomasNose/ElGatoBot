@@ -8,7 +8,7 @@ import random
 # External package specific imports
 from discord.ext import commands
 from discord import app_commands
-
+from datetime import timezone
 
 # Unique commands or events for ElGatoBot
 import settings
@@ -19,7 +19,7 @@ from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
-from trading.trades import trade_monsters, trade_accept, trade_cancel
+from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance, pay_user
 
@@ -80,12 +80,25 @@ def run():
     async def on_message(message):
         Drop = 25
         Chance = random.randint(1,50)
+
+        # Reading from local file. This is replacing a DB connection which is awful per message.
+        with open("gaming/latest_drop.txt","r") as file:
+            thing = file.readline().split("=")[1]
+            latest = datetime.datetime.strptime(thing, "%Y-%m-%d %H:%M:%S")
+            latest = abs((message.created_at.replace(tzinfo=None) - latest).total_seconds())
+            file.close()
+
         # If person rolls DROP and isn't the bot and isn't a specific channel
-        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':
+        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889' and latest > 60:
             monstername = monster_drop(message)
             channel = message.channel
             if monstername != None:
-                await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername} during the increased drop rate!")
+                await channel.send(f"<@{message.author.id}>, you got a monster drop, {monstername}.")
+
+                # Updates latest drop time.
+                with open("gaming/latest_drop.txt","w") as file:
+                    file.write(f"Latest={datetime.datetime.strptime(str(message.created_at.replace(tzinfo=None).replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')}")
+                    file.close()
 
         msgsize = len(message.content)
         if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):
@@ -105,7 +118,7 @@ def run():
         with open(f"logs/{message.author.id}/data.txt", "a") as n:
             n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
-    @bot.tree.command(name="monsters_collection")
+    @bot.tree.command(name="collection")
     @app_commands.describe(member = "discord member's monsters")
     async def collection(interaction: discord.Interaction, member: discord.Member):
         usermonsters = my_monsters(interaction.guild.id,member.id)
@@ -156,14 +169,9 @@ def run():
     @bot.tree.command(name="flex")
     @app_commands.describe(member = "discord member")
     async def flex(interaction: discord.Interaction, member: discord.Member):
-        #if "1178728073311563847" in [str(role.id) for role in interaction.user.roles]:
         file = discord.File(f"commands/flex/fleximages/{flexing()}")
         insult_str = insult()
         await interaction.response.send_message(file = file, content = f"<@{interaction.user.id}> " + "flexed on " + f"<@{member.id}>. You {insult_str}.")
-        #else:
-        #    file = discord.File(f"commands/flex/fleximages/noaccess/facepalmlaugh.png")
-        #    insult_str = insult()
-        #    await interaction.response.send_message(file = file, content = f"Hey everyone, look at this {insult_str}. <@{interaction.user.id}>")
 
 
     @bot.tree.command(name="gpt")
@@ -303,6 +311,10 @@ def run():
     @bot.tree.command(name="cancel", description="Cancel your trade.")
     async def cancel(interaction: discord.Interaction):
         await trade_cancel(interaction, interaction.user.id)
+    
+    @bot.tree.command(name="give", description="Cancel your trade.")
+    async def give(interaction: discord.Interaction, member: discord.Member, monstername: str):
+        await monster_give(interaction, member, monstername)
 
     @bot.tree.command(name="pay", description="Pay a user coins.")
     async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):

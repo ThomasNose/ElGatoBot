@@ -4,6 +4,8 @@ from utils.connect_db import connect_db
 
 
 async def trade_monsters(interaction, member, myitem, theiritem):
+    if interaction.user.id == member.id:
+        return(await interaction.response.send_message("You can't trade with yourself."))
     conn = connect_db(settings.POSTGRES_LOGIN_DETAILS)
     cur = conn.cursor()
 
@@ -14,7 +16,7 @@ async def trade_monsters(interaction, member, myitem, theiritem):
         return(await interaction.response.send_message("You already have a trade open, type /cancel to cancel it."))
 
     # Returning list of monsters to check valid names
-    valid = await checking.valid(cur, interaction, myitem, theiritem)
+    valid = await checking.valid(myitem, theiritem)
     if valid == False:
         conn.close()
         return(await interaction.response.send_message("Monster name mismatch."))
@@ -97,6 +99,29 @@ async def trade_cancel(interaction, traderid):
     conn.close()
     return(await interaction.response.send_message("You've cancelled your trade(s)."))
 
+async def monster_give(interaction, member, monstername):
+    """
+        Gives users one of your monsters if it exists and you have at least one.
+    """
+    if interaction.user.id == member.id:
+        return(await interaction.response.send_message("You can't trade with yourself."))
+    conn = connect_db(settings.POSTGRES_LOGIN_DETAILS)
+    cur = conn.cursor()
+    monsterid = checking.name_to_id("gaming/monsters.txt",monstername)
+    if monsterid == None:
+        return(await interaction.response.send_message("That monster doesn't exist."))
+
+    stocked = await checking.available_give(cur, interaction, monsterid)
+    if stocked == False:
+        return(await interaction.response.send_message(f"You don't have a {monstername}."))
+    else:
+        cur.execute(f"UPDATE usermonsters \
+                    SET userid = '{member.id}' \
+                    WHERE monsterkey = '{stocked[0]}'")
+        conn.commit()
+        conn.close()
+        return(await interaction.response.send_message(f"You traded <@{member.id} your {monstername}."))
+
 
 class checking():
     """
@@ -115,15 +140,15 @@ class checking():
             return(False)
 
 
-    async def valid(cursor, interaction, myitem, theiritem):
-        cur = cursor
-        cur.execute("SELECT monstername FROM monsters")
-        monsters = cur.fetchall()
+    async def valid(myitem, theiritem):
+        with open("gaming/monsters.txt","r") as file:
+            monsters = [line.strip().split(',')[1] for line in file.readlines()]
         check = [myitem, theiritem]
         if not all(any(value in t for t in monsters) for value in check):
             return(False)
 
 
+    # Checking if both parties have 1 available
     async def available(cursor, interaction, member, myitem, theiritem):
         cur = cursor
         cur.execute(f"SELECT monsterkey, monstername FROM usermonsters u \
@@ -144,4 +169,22 @@ class checking():
             return("Recipient no item", True)
         else:
             return(trader[0], recipient[0])
-            
+        
+    async def available_give(cur, interaction, monsterid):
+        cur.execute(f"SELECT monsterkey FROM usermonsters u \
+                    JOIN monsters m on u.monsterid = m.monsterid \
+                    WHERE userid = '{interaction.user.id}' and guildid = '{interaction.guild.id}' and m.monsterid = '{monsterid}'\
+                    LIMIT 1")
+        stock = cur.fetchone()
+        if stock == None:
+            return(False)
+        else:
+            return(stock)
+        
+    def name_to_id(file_path, name):
+        with open(file_path, 'r') as file:
+            for line in file:
+                columns = line.strip().split(',')
+                if len(columns) >= 2 and columns[1] == name:
+                    return columns[0]
+        return None

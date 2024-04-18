@@ -312,7 +312,7 @@ def run():
     async def cancel(interaction: discord.Interaction):
         await trade_cancel(interaction, interaction.user.id)
     
-    @bot.tree.command(name="give", description="Cancel your trade.")
+    @bot.tree.command(name="give", description="Give a monster for nothing in return.")
     async def give(interaction: discord.Interaction, member: discord.Member, monstername: str):
         await monster_give(interaction, member, monstername)
 

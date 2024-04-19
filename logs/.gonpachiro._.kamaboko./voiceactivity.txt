@@ -1,2 +1,0 @@
-{"channel": "Noobs (5+)", "username": ".gonpachiro._.kamaboko.", "state": "joined", "time": "2024-02-04 22:04:42"}
-{"channel": "Noobs (5+)", "username": ".gonpachiro._.kamaboko.", "state": "left", "time": "2024-02-04 22:04:44"}

@@ -1,2 +1,0 @@
-{"channel": "Fortnite", "username": "a55ict", "state": "joined", "time": "2024-03-13 21:18:17"}
-{"channel": "Live sesh", "username": "a55ict", "state": "left", "time": "2024-03-13 21:26:03"}

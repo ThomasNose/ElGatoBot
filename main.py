@@ -39,18 +39,19 @@ class PaginationView(discord.ui.View):
     async def send(self, interaction):
         await interaction.response.send_message(view=self)
         self.message = await interaction.original_response()
-        await self.update_message(self.data[:self.sep])
+        await self.update_message(self.data[:self.sep], self.user)
         
 
-    def create_embed(self, data):
-        embed = discord.Embed(title = "Monster Collection")
+    def create_embed(self, data, user):
+        embed = discord.Embed(title = f"Page {self.current_page} of Collection", \
+                              description=f"<@{user}>'s monsters")
         for monster, count in data:
             embed.add_field(name=monster, value=f"Count: {count}", inline=True)
         return(embed)
     
-    async def update_message(self, data):
+    async def update_message(self, data, user):
         self.update_buttons()
-        await self.message.edit(embed=self.create_embed(data), view = self)
+        await self.message.edit(embed=self.create_embed(data, user), view = self)
     
 
     def update_buttons(self):
@@ -69,11 +70,11 @@ class PaginationView(discord.ui.View):
 
     
     @discord.ui.button(label="First", style = discord.ButtonStyle.primary)
-    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button,):
         await interaction.response.defer()
         self.current_page = 1
         until_item = self.current_page * self.sep
-        await self.update_message(self.data[:until_item])
+        await self.update_message(self.data[:until_item], self.user)
 
     @discord.ui.button(label="Next", style = discord.ButtonStyle.primary)
     async def next_button(self, interaction:discord.Interaction, button: discord.ui.Button):
@@ -81,7 +82,7 @@ class PaginationView(discord.ui.View):
         self.current_page += 1
         until_item = self.current_page * self.sep
         from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:until_item])
+        await self.update_message(self.data[from_item:until_item], self.user)
 
     @discord.ui.button(label="Previous", style = discord.ButtonStyle.primary)
     async def previous_button(self, interaction:discord.Interaction, button: discord.ui.Button):
@@ -89,7 +90,7 @@ class PaginationView(discord.ui.View):
         self.current_page -= 1
         until_item = self.current_page * self.sep
         from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:until_item])
+        await self.update_message(self.data[from_item:until_item], self.user)
 
     @discord.ui.button(label="Last",
                        style = discord.ButtonStyle.primary)
@@ -98,7 +99,7 @@ class PaginationView(discord.ui.View):
         self.current_page =  math.ceil(len(self.data) / self.sep)
         until_item = self.current_page * self.sep
         from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:])
+        await self.update_message(self.data[from_item:], self.user)
 
 
 Generating = False
@@ -200,9 +201,8 @@ def run():
 
         pagination_view = PaginationView()
         pagination_view.data = usermonsters
+        pagination_view.user = member.id
         await pagination_view.send(interaction)
-
-
 
 
 

@@ -120,7 +120,7 @@ async def monster_give(interaction, member, monstername):
                     WHERE monsterkey = '{stocked[0]}'")
         conn.commit()
         conn.close()
-        return(await interaction.response.send_message(f"You traded <@{member.id}> your {monstername}."))
+        return(await interaction.response.send_message(f"You gave <@{member.id}> your {monstername}."))
 
 
 class checking():

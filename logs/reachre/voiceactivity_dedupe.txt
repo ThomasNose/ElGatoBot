@@ -1,4 +1,0 @@
-{"channel": "General", "username": "reachre", "state": "joined", "time": "2024-03-22 16:09:31"}
-{"channel": "General", "username": "reachre", "state": "left", "time": "2024-03-22 16:09:46"}
-{"channel": "General", "username": "reachre", "state": "joined", "time": "2024-03-22 19:04:07"}
-{"channel": "General", "username": "reachre", "state": "left", "time": "2024-03-22 19:04:16"}

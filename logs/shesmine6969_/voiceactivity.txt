@@ -1,2 +1,0 @@
-{"channel": "Waiting room", "username": "shesmine6969_", "state": "joined", "time": "2024-03-20 21:19:22"}
-{"channel": "\ud83d\udd34 Live sesh", "username": "shesmine6969_", "state": "left", "time": "2024-03-20 22:07:56"}

@@ -1,2 +1,0 @@
-{"channel": "afk", "username": "zgchza", "state": "joined", "time": "2024-03-02 22:36:23"}
-{"channel": "afk", "username": "zgchza", "state": "left", "time": "2024-03-02 22:36:25"}

@@ -1,2 +1,0 @@
-{"channel": "vibes", "username": "vivvi1337", "state": "joined", "time": "2024-03-07 20:30:05"}
-{"channel": "vibes", "username": "vivvi1337", "state": "left", "time": "2024-03-07 20:31:28"}

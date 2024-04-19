@@ -1,8 +1,0 @@
-{"channel": "vibes", "username": "webd.to", "state": "joined", "time": "2024-01-05 22:54:46"}
-{"channel": "vibes", "username": "webd.to", "state": "left", "time": "2024-01-05 23:05:21"}
-{"channel": "vibes", "username": "webd.to", "state": "joined", "time": "2024-01-06 22:03:10"}
-{"channel": "onlyfans Dont change this (myra = weeb + poo) fu thomas", "username": "webd.to", "state": "left", "time": "2024-01-06 22:11:04"}
-{"channel": "vibes", "username": "webd.to", "state": "joined", "time": "2024-01-06 22:11:09"}
-{"channel": "onlyfans Dont change this (myra = weeb + poo) fu thomas", "username": "webd.to", "state": "left", "time": "2024-01-06 22:34:48"}
-{"channel": "vibes", "username": "webd.to", "state": "joined", "time": "2024-02-04 23:27:47"}
-{"channel": "vibes", "username": "webd.to", "state": "left", "time": "2024-02-04 23:36:17"}

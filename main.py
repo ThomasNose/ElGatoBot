@@ -23,10 +23,85 @@ from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_g
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance, pay_user
 
+
 logger = settings.logging.getLogger("bot")
+
+
+class PaginationView(discord.ui.View):
+    """
+        This class is responsible for creating embeds for listing a user's collection.
+        For now this is orientated at a monster collection but different functions
+        can be created later on when needed.
+    """
+    current_page : int = 1
+    sep : int = 5
+    async def send(self, interaction):
+        await interaction.response.send_message(view=self)
+        self.message = await interaction.original_response()
+        await self.update_message(self.data[:self.sep])
+        
+
+    def create_embed(self, data):
+        embed = discord.Embed(title = "monsters")
+        for monster, count in data:
+            embed.add_field(name=monster, value=f"Count: {count}", inline=False)
+        return(embed)
+    
+    async def update_message(self, data):
+        self.update_buttons()
+        await self.message.edit(embed=self.create_embed(data), view = self)
+    
+
+    def update_buttons(self):
+        if self.current_page == 1:
+            self.first_page_button.disabled = True
+            self.previous_button.disabled = True
+        else:
+            self.first_page_button.disabled = False
+            self.previous_button.disabled = False
+        if self.current_page == int(len(self.data) / self.sep) + 1 :
+            self.next_button.disabled = True
+            self.last_page_button.disabled = True
+        else:
+            self.next_button.disabled = False
+            self.last_page_button.disabled = False
+
+    
+    @discord.ui.button(label="|<", style = discord.ButtonStyle.primary)
+    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page = 1
+        until_item = self.current_page * self.sep
+        await self.update_message(self.data[:until_item])
+
+    @discord.ui.button(label=">", style = discord.ButtonStyle.primary)
+    async def next_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page += 1
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:until_item])
+
+    @discord.ui.button(label="<", style = discord.ButtonStyle.primary)
+    async def previous_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page -= 1
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:until_item])
+
+    @discord.ui.button(label=">|",
+                       style = discord.ButtonStyle.primary)
+    async def last_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page = int(len(self.data) / self.sep) + 1
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:])
+
+
 Generating = False
 botid = None
-
 def run():
     intents = discord.Intents.default()
     intents.message_content = True
@@ -118,20 +193,19 @@ def run():
         with open(f"logs/{message.author.id}/data.txt", "a") as n:
             n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
+
     @bot.tree.command(name="collection")
     @app_commands.describe(member = "discord member's monsters")
     async def collection(interaction: discord.Interaction, member: discord.Member):
         usermonsters = my_monsters(interaction.guild.id,member.id)
-        
-        embed = discord.Embed(
-            colour=discord.Colour.dark_teal(),
-            description=f"------<@{member.id}>'s monster collection------",
-            title="Monster collection list"
-        )
-        for monster, count in usermonsters:
-            # Add each monster's information as a field in the embed
-            embed.add_field(name=monster, value=f"Count: {count}", inline=True)
-        await interaction.response.send_message(embed=embed)
+
+        pagination_view = PaginationView()
+        pagination_view.data = usermonsters
+        await pagination_view.send(interaction)
+
+
+
+
 
     @bot.tree.command(name="balance", description="Discord member's balance")
     async def balance(interaction: discord.Interaction):

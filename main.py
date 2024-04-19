@@ -4,11 +4,12 @@ import datetime as datetime
 import time
 import requests
 import random
+import math
 
 # External package specific imports
 from discord.ext import commands
 from discord import app_commands
-
+from datetime import timezone
 
 # Unique commands or events for ElGatoBot
 import settings
@@ -19,14 +20,89 @@ from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
-from trading.trades import trade_monsters, trade_accept, trade_cancel
+from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance, pay_user
 
+
 logger = settings.logging.getLogger("bot")
+
+
+class PaginationView(discord.ui.View):
+    """
+        This class is responsible for creating embeds for listing a user's collection.
+        For now this is orientated at a monster collection but different functions
+        can be created later on when needed.
+    """
+    current_page : int = 1
+    sep : int = 6
+    async def send(self, interaction):
+        await interaction.response.send_message(view=self)
+        self.message = await interaction.original_response()
+        await self.update_message(self.data[:self.sep])
+        
+
+    def create_embed(self, data):
+        embed = discord.Embed(title = "Monster Collection")
+        for monster, count in data:
+            embed.add_field(name=monster, value=f"Count: {count}", inline=True)
+        return(embed)
+    
+    async def update_message(self, data):
+        self.update_buttons()
+        await self.message.edit(embed=self.create_embed(data), view = self)
+    
+
+    def update_buttons(self):
+        if self.current_page == 1:
+            self.first_page_button.disabled = True
+            self.previous_button.disabled = True
+        else:
+            self.first_page_button.disabled = False
+            self.previous_button.disabled = False
+        if self.current_page ==  math.ceil(len(self.data) / self.sep):
+            self.next_button.disabled = True
+            self.last_page_button.disabled = True
+        else:
+            self.next_button.disabled = False
+            self.last_page_button.disabled = False
+
+    
+    @discord.ui.button(label="First", style = discord.ButtonStyle.primary)
+    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page = 1
+        until_item = self.current_page * self.sep
+        await self.update_message(self.data[:until_item])
+
+    @discord.ui.button(label="Next", style = discord.ButtonStyle.primary)
+    async def next_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page += 1
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:until_item])
+
+    @discord.ui.button(label="Previous", style = discord.ButtonStyle.primary)
+    async def previous_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page -= 1
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:until_item])
+
+    @discord.ui.button(label="Last",
+                       style = discord.ButtonStyle.primary)
+    async def last_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.current_page =  math.ceil(len(self.data) / self.sep)
+        until_item = self.current_page * self.sep
+        from_item = until_item - self.sep
+        await self.update_message(self.data[from_item:])
+
+
 Generating = False
 botid = None
-
 def run():
     intents = discord.Intents.default()
     intents.message_content = True
@@ -80,16 +156,27 @@ def run():
     async def on_message(message):
         Drop = 25
         Chance = random.randint(1,50)
+
+        # Reading from local file. This is replacing a DB connection which is awful per message.
+        with open("gaming/latest_drop.txt","r") as file:
+            thing = file.readline().split("=")[1]
+            latest = datetime.datetime.strptime(thing, "%Y-%m-%d %H:%M:%S")
+            latest = abs((message.created_at.replace(tzinfo=None) - latest).total_seconds())
+            file.close()
+
         # If person rolls DROP and isn't the bot and isn't a specific channel
-        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':
+        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889' and latest > 60:
             monstername = monster_drop(message)
             channel = message.channel
             if monstername != None:
-                await channel.send(f"Congratulations <@{message.author.id}> you got a monster drop, {monstername} during the increased drop rate!")
+                await channel.send(f"<@{message.author.id}>, you got a monster drop, {monstername}.")
 
-        msgsize = len(message.content)
-        if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):
-            message_money_gain(round(msgsize/250, 2), message)
+                # Updates latest drop time.
+                with open("gaming/latest_drop.txt","w") as file:
+                    file.write(f"Latest={datetime.datetime.strptime(str(message.created_at.replace(tzinfo=None).replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')}")
+                    file.close()
+
+        message_money_gain(message)
 
     
         # Commented out for now as logging messages
@@ -105,20 +192,19 @@ def run():
         with open(f"logs/{message.author.id}/data.txt", "a") as n:
             n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
-    @bot.tree.command(name="monsters_collection")
+
+    @bot.tree.command(name="collection")
     @app_commands.describe(member = "discord member's monsters")
     async def collection(interaction: discord.Interaction, member: discord.Member):
         usermonsters = my_monsters(interaction.guild.id,member.id)
-        
-        embed = discord.Embed(
-            colour=discord.Colour.dark_teal(),
-            description=f"------<@{member.id}>'s monster collection------",
-            title="Monster collection list"
-        )
-        for monster, count in usermonsters:
-            # Add each monster's information as a field in the embed
-            embed.add_field(name=monster, value=f"Count: {count}", inline=True)
-        await interaction.response.send_message(embed=embed)
+
+        pagination_view = PaginationView()
+        pagination_view.data = usermonsters
+        await pagination_view.send(interaction)
+
+
+
+
 
     @bot.tree.command(name="balance", description="Discord member's balance")
     async def balance(interaction: discord.Interaction):
@@ -156,14 +242,9 @@ def run():
     @bot.tree.command(name="flex")
     @app_commands.describe(member = "discord member")
     async def flex(interaction: discord.Interaction, member: discord.Member):
-        #if "1178728073311563847" in [str(role.id) for role in interaction.user.roles]:
         file = discord.File(f"commands/flex/fleximages/{flexing()}")
         insult_str = insult()
         await interaction.response.send_message(file = file, content = f"<@{interaction.user.id}> " + "flexed on " + f"<@{member.id}>. You {insult_str}.")
-        #else:
-        #    file = discord.File(f"commands/flex/fleximages/noaccess/facepalmlaugh.png")
-        #    insult_str = insult()
-        #    await interaction.response.send_message(file = file, content = f"Hey everyone, look at this {insult_str}. <@{interaction.user.id}>")
 
 
     @bot.tree.command(name="gpt")
@@ -303,6 +384,10 @@ def run():
     @bot.tree.command(name="cancel", description="Cancel your trade.")
     async def cancel(interaction: discord.Interaction):
         await trade_cancel(interaction, interaction.user.id)
+    
+    @bot.tree.command(name="give", description="Give a monster for nothing in return.")
+    async def give(interaction: discord.Interaction, member: discord.Member, monstername: str):
+        await monster_give(interaction, member, monstername)
 
     @bot.tree.command(name="pay", description="Pay a user coins.")
     async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):

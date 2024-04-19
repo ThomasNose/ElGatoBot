@@ -176,9 +176,7 @@ def run():
                     file.write(f"Latest={datetime.datetime.strptime(str(message.created_at.replace(tzinfo=None).replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')}")
                     file.close()
 
-        msgsize = len(message.content)
-        if msgsize > 0 and msgsize <= 500 and str(message.author.id) != str(botid):
-            message_money_gain(round(msgsize/250, 2), message)
+        message_money_gain(message)
 
     
         # Commented out for now as logging messages

@@ -5,7 +5,7 @@ from datetime import datetime
 
 postgres = settings.POSTGRES_LOGIN_DETAILS
 
-def message_money_gain(points, message):
+def message_money_gain(message):
     conn = connect_db(postgres)
     cur = conn.cursor()
 

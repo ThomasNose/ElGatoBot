@@ -20,6 +20,7 @@ from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
+from commands.suggestions.suggestions import suggest
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance, pay_user
@@ -392,6 +393,11 @@ def run():
     @bot.tree.command(name="pay", description="Pay a user coins.")
     async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):
         await pay_user(interaction, member, amount)
+
+
+    @bot.tree.command(name="suggestion", description="Make a bot suggestion, 500 characters max or will be truncated.")
+    async def suggestion(interaction: discord.Interaction, ctx: str):
+        await suggest(interaction, ctx)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

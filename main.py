@@ -167,7 +167,7 @@ def run():
             file.close()
 
         # If person rolls DROP and isn't the bot and isn't a specific channel
-        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':# and latest > 60:
+        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889' and latest > 60:
             monstername = monster_drop(message)
             channel = message.channel
             if monstername != None:

@@ -156,8 +156,8 @@ def run():
     # Logging messages/images in case someone thinks they're a smart arse.
     @bot.listen('on_message')
     async def on_message(message):
-        Drop = 25
-        Chance = random.randint(1,50)
+        Drop = 50
+        Chance = random.randint(1,100)
 
         # Reading from local file. This is replacing a DB connection which is awful per message.
         with open("gaming/latest_drop.txt","r") as file:
@@ -167,11 +167,17 @@ def run():
             file.close()
 
         # If person rolls DROP and isn't the bot and isn't a specific channel
-        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889' and latest > 60:
+        if Chance == Drop and str(message.author.id) != str(botid) and str(message.channel) != '1028024995709984889':# and latest > 60:
             monstername = monster_drop(message)
             channel = message.channel
             if monstername != None:
-                await channel.send(f"<@{message.author.id}>, you got a monster drop, {monstername}.")
+                try:
+                    file = discord.File(f"gaming/monsters/{monstername.lower()}"+"-image.png")
+                except:
+                    file = None
+                    print(f"No image of {monstername} exists yet.")
+
+                await channel.send(file=file, content = f"<@{message.author.id}>, you got a monster drop, {monstername}.")
 
                 # Updates latest drop time.
                 with open("gaming/latest_drop.txt","w") as file:
@@ -181,8 +187,7 @@ def run():
         message_money_gain(message)
 
     
-        # Commented out for now as logging messages
-        # isn't priority.
+        # Logs user messages - not sure if this retains upon the creation of each new docker image - doesn't really matter.
         path = "logs/"+f"{str(message.author.id)}"
         makedirectory(path)
         if message.attachments:

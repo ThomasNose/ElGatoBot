@@ -24,10 +24,11 @@ monsterid,monstername,species,gender,rarity
 23,Emberflame,Beast,N/A,RARE
 24,Aurorashift,Ice,Female,RARE
 25,Boulderback,Rock,N/A,RARE
-26,Celestine,Celestial,Female,MYTHICAL
-27,Galewing,Flying,Male,MYTHICAL
-28,Seraphflare,Beast,Male,MYTHICAL
-29,Thundersurge,Dragon,Female,MYTHICAL
+26,Celestine,Celestial,Female,MYSTICAL
+27,Galewing,Flying,Male,MYSTICAL
+28,Seraphflare,Beast,Male,MYSTICAL
+29,Thundersurge,Dragon,Female,MYSTICAL
 30,Mystiquill,Oracle,N/A,LEGENDARY
+31,Gorlak,Humanoid,N/A,MYSTICAL
 1000,MrBeast,Humanoid,Male,UNOBTAINABLE
 1001,kk's gaming chair,Inanimate,Female,UNOBTAINABLE

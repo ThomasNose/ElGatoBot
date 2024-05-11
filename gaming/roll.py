@@ -31,7 +31,7 @@ class CustomDistributionModel:
                 if chance >= 81:
                     return("LEGENDARY")
                 elif chance >= 61:
-                    return("MYTHICAL")
+                    return("MYSTICAL")
                 elif chance >= 41:
                     return("RARE")
                 elif chance >= 21:

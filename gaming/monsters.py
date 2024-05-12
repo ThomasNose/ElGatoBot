@@ -56,11 +56,11 @@ def my_monsters(guild, user):
 
     userid = user
     guildid = guild
-    query = f"SELECT m.monstername, count(*) FROM usermonsters u \
+    query = f"SELECT m.monstername, count(*), lower(m.rarity) FROM usermonsters u \
             JOIN discordusers d ON u.userid = d.userid \
             JOIN monsters m ON u.monsterid = m.monsterid \
             WHERE u.userid = cast({userid} as varchar) and guildid = cast({guildid} as varchar) \
-            GROUP BY m.monstername \
+            GROUP BY m.monstername, m.rarity\
             ORDER BY 2 desc"
     cur.execute(query)
     mine = cur.fetchall()

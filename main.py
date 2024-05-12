@@ -46,7 +46,7 @@ class PaginationView(discord.ui.View):
     def create_embed(self, data, user):
         embed = discord.Embed(title = f"Page {self.current_page} of Collection", \
                               description=f"<@{user}>'s monsters")
-        for monster, count, rarity in data:
+        for monster, count, rarity, orderid in data:
             embed.add_field(name=f"{monster} ({rarity})", value=f"Count: {count}", inline=True)
         return(embed)
     

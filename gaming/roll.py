@@ -40,6 +40,6 @@ class CustomDistributionModel:
                     return("COMMON")
                 
 
-# Example usage
+# Example usage 
 #model = CustomDistributionModel()
 #sample = model.generate_sample()

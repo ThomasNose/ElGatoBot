@@ -408,7 +408,7 @@ def run():
 
     @bot.listen('on_message')
     async def on_message(message):
-        if message.content.startswith("?play"):
+        if message.content.startswith("?"):
             await audio(message)
             
         

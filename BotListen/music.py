@@ -11,27 +11,29 @@ ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconne
 
 async def audio(message):
     channel = message.channel
-    try:
-        voice_client = await message.author.voice.channel.connect()
-        voice_clients[voice_client.guild.id] = voice_client
-    except Exception as e:
-        # Already connected to voice channel
-        print(e)
-        await channel.send(content = "Song already playing.")
 
-    try:
-        url = message.content.split()[1]
+    if message.content.startswith("?play"):
+        try:
+            voice_client = await message.author.voice.channel.connect()
+            voice_clients[voice_client.guild.id] = voice_client
+        except Exception as e:
+            # Already connected to voice channel
+            print(e)
+            await channel.send(content = "Song already playing.")
 
-        loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            url = message.content.split()[1]
 
-        song = data['url']
-        player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
+            loop = asyncio.get_event_loop()
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
 
-        voice_clients[message.guild.id].play(player)
-    except Exception as e:
-        # Song already playing
-        print(e)
+            song = data['url']
+            player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
+
+            voice_clients[message.guild.id].play(player)
+        except Exception as e:
+            # Song already playing
+            print(e)
 
     if message.content.startswith("?pause"):
         try:

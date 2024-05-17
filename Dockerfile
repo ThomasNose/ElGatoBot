@@ -13,8 +13,11 @@ RUN pip install openai==1.12.0
 RUN pip install pandas==2.2.1
 RUN pip install psycopg==3.1.18
 RUN pip install psycopg-binary==3.1.18
-RUN pip install python-dotenv==1.0.1
 RUN pip install requests==2.31.0
 RUN pip install boto3
+RUN pip install python-dotenv==1.0.1
+RUN pip install yt_dlp
+RUN pip install ffmpeg
+RUN pip install PyNaCl
 
 CMD ["python3", "main.py"]

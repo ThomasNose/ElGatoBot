@@ -19,7 +19,6 @@ async def audio(message):
         except Exception as e:
             # Already connected to voice channel
             print(e)
-            await channel.send(content = "Song already playing.")
 
         try:
             url = message.content.split()[1]
@@ -33,6 +32,7 @@ async def audio(message):
             voice_clients[message.guild.id].play(player)
         except Exception as e:
             # Song already playing
+            await channel.send(content = "Song already playing.")
             print(e)
 
     if message.content.startswith("?pause"):

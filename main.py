@@ -15,6 +15,7 @@ from datetime import timezone
 import settings
 from BotListen.voice import voicelog
 from BotListen.users import user_update
+from BotListen.music import audio
 from utils.makefile import makedirectory
 from utils.clean_logs import clean
 from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giveaway_enter, giveaway_draw
@@ -404,6 +405,13 @@ def run():
     async def suggestion(interaction: discord.Interaction, ctx: str):
         await suggest(interaction, ctx)
 
+
+    @bot.listen('on_message')
+    async def on_message(message):
+        if message.content.startswith("?play"):
+            await audio(message)
+            
+        
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 

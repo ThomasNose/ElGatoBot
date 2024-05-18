@@ -24,7 +24,6 @@ class audio():
             voice_client = await interaction.user.voice.channel.connect()
             voice_clients[voice_client.guild.id] = voice_client
 
-            
         except Exception as e:
             # Already connected to voice channel
             # This checks if a song is already playing and if so adds to the queue.
@@ -53,8 +52,8 @@ class audio():
             
         except Exception as e:
             # Song already playing
-            print(e)
             msg = await interaction.response.send_message(content = "There was an exception.")
+            print(e)
             return()
 
     async def pause_audio(interaction):

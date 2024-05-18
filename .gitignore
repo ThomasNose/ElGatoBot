@@ -165,3 +165,6 @@ ai_img.png
 Dockerpass
 logs/*/data.txt
 logs/*/images/
+logs/
+settings.py
+gaming/latest_drop.txt

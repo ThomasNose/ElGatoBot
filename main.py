@@ -406,10 +406,32 @@ def run():
         await suggest(interaction, ctx)
 
 
-    @bot.listen('on_message')
-    async def on_message(message):
-        if message.content.startswith("?"):
-            await audio(message)
+    @bot.tree.command(name="play", description="Play audio via a youtube link")
+    async def play(interaction: discord.Interaction, url: str):
+        if url.startswith("https://www.youtube.com/"):
+            await audio().play_audio(interaction, url)
+        else:
+            await interaction.response.send_message(content = "URL not supported, please use a youtube link.")
+
+
+    @bot.tree.command(name="pause", description="Pause audio")
+    async def pause(interaction: discord.Interaction):
+        await audio.pause_audio(interaction)
+
+
+    @bot.tree.command(name="resume", description="Resume audio")
+    async def resume(interaction: discord.Interaction):
+        await audio.resume_audio(interaction)
+
+
+    @bot.tree.command(name="stop", description="Pause audio")
+    async def stop(interaction: discord.Interaction):
+        await audio.audio_disconnect(interaction)
+    
+
+    @bot.tree.command(name="skip", description="Pause audio")
+    async def skip(interaction: discord.Interaction):
+        await audio().audio_skip(interaction)
             
         
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

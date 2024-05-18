@@ -4,7 +4,6 @@ import discord
 
 queues = {}
 voice_clients = {}
-Test_clients = {}
 yt_dl_options = {"format": "bestaudio/best", "noplaylist": False}
 ytdl = yt_dlp.YoutubeDL(yt_dl_options)
 
@@ -34,7 +33,6 @@ class audio():
                 msg = await interaction.response.send_message(content = "Added to queue.")
                 return(voice_clients[interaction.guild.id].is_playing())
             print(e)
-            # msg = await interaction.response.send_message(content = "Bot is already playing.")
 
         try:
 

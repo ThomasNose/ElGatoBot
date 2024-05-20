@@ -89,10 +89,23 @@ class audio():
         try:
             voice_clients[interaction.guild.id].stop()
             await voice_clients[interaction.guild.id].disconnect()
+            queues[f"{interaction.guild.id}"] = []
             return(await interaction.response.send_message(content = "Bot disconnected."))
         except Exception as e:
             print(e)
             return(await interaction.response.send_message(content = "Error disconnecting"))
+        
+
+    async def audio_leave(guildid):
+        """
+            Specifically for when the bot is alone in the chat.
+        """
+        try:
+            voice_clients[guildid].stop()
+            await voice_clients[guildid].disconnect()
+            queues[f"{guildid}"] = []
+        except Exception as e:
+            print(e)
         
     async def audio_skip(self, interaction):
         try:
@@ -117,3 +130,7 @@ class audio():
         except Exception as e:
             print(e)
             return(await interaction.response.send_message(content = "Error skipping."))
+        
+    async def audio_clear(interaction):
+        queues[f"{interaction.guild.id}"] = []
+        msg = await interaction.response.send_message(content = "Queue cleared.")

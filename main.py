@@ -135,6 +135,17 @@ def run():
         for command in bot.commands:
             print(f"Command Name: {command.name}")
 
+    
+    @bot.event
+    async def on_voice_state_update(member: discord.Member, before, after):
+        if before.channel:
+            voice = set()
+            for member in before.channel.members:
+                voice.add(member.id)
+            if botid in voice and len(voice) <= 1:
+                await audio.audio_leave(member.guild.id)
+
+
     @bot.command(
             help="Help",
             description="Description",
@@ -411,7 +422,6 @@ def run():
         if interaction.user.voice == None:
             await interaction.response.send_message(content = "You must be in a voice channel.")
             return()
-        #elif interaction.user.voice.channel.id != interaction.guild.voice_client
         elif url.startswith("https://www.youtube.com/") and interaction.user.voice != None:
             await audio().play_audio(interaction, url)
         else:
@@ -460,6 +470,17 @@ def run():
             return(await interaction.response.send_message("Bot not in your voice chat."))
         else:
             await audio().audio_skip(interaction)
+
+
+    @bot.tree.command(name="clear", description="Clears audio queue.")
+    async def clear(interaction: discord.Interaction):
+        voice_state = interaction.guild.voice_client
+        if interaction.user.voice == None:
+            await interaction.response.send_message(content = "You must be in a voice channel.")
+        elif interaction.user.voice.channel.id != voice_state.channel.id:
+            return(await interaction.response.send_message("Bot not in your voice chat."))
+        else:
+            await audio.audio_clear(interaction)
             
         
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

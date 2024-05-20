@@ -17,6 +17,8 @@ class audio():
     """
     
     async def play_audio(self, interaction, url):
+
+        # This condition is for later checks to return the status of the player.
         if url == None:
             return(voice_clients[interaction.guild.id].is_playing())
 
@@ -28,7 +30,14 @@ class audio():
             # Already connected to voice channel
             # This checks if a song is already playing and if so adds to the queue.
             if voice_clients[interaction.guild.id].is_playing():
-                queue.append(url)
+
+                # Since the bot can be in multiple servers, I've changed this so the queue is a dictionary object.
+                # This is important for now considering the bot is ran from one instance while in multiple discords.
+                if f"{interaction.guild.id}" not in queues:
+                    queues[f"{interaction.guild.id}"] = []
+                    queues[f"{interaction.guild.id}"].append(url)
+                else:
+                    queues[f"{interaction.guild.id}"].append(url)
                 msg = await interaction.response.send_message(content = "Added to queue.")
                 return(voice_clients[interaction.guild.id].is_playing())
             print(e)
@@ -41,12 +50,16 @@ class audio():
             song = data['url']
             player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
             voice_clients[interaction.guild.id].play(player)
-            if len(queue) < 1:
+            #if len(queue) < 1:
+            if len(queues[f"{interaction.guild.id}"]) < 1:
                 msg = await interaction.response.send_message(content = "Audio now playing.")
                 return()
 
-            if len(queue) >= 1:
-                queue.pop(0)
+            #if len(queue) >= 1:
+            if len(queues[f"{interaction.guild.id}"]) >= 1:
+
+                # removing the song from queue
+                queues[f"{interaction.guild.id}"].pop(0)
                 msg = await interaction.response.send_message(content = "Audio skipped.")
                 return()
             
@@ -83,13 +96,16 @@ class audio():
         
     async def audio_skip(self, interaction):
         try:
-            
-            #print(queue)
-            if len(queue) >= 1:
+            # When the queue >= 1 then we skip and move on to the next queue item.
+            if len(queues[f"{interaction.guild.id}"]) >= 1:
                 voice_clients[interaction.guild.id].stop()
-                playing = await self.play_audio(interaction, queue[0])
+                playing = await self.play_audio(interaction, queues[f"{interaction.guild.id}"][0])
                 return()
+            # When the queue isn't >= 1 then the queue is empty and a single audio was playing so we
+            # stop the player like normal but don't recall the play_audio function.
             else:
+                # This condition is required to know if there's anything playing currently and thus
+                # anything possible to skip, if not we just return "Nothing to skip.".
                 playing = await self.play_audio(interaction, None)
                 if playing == True:
                     voice_clients[interaction.guild.id].stop()

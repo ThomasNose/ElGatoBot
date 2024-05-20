@@ -421,33 +421,45 @@ def run():
     @bot.tree.command(name="pause", description="Pause audio.")
     async def pause(interaction: discord.Interaction):
         voice_state = interaction.guild.voice_client
-        if interaction.user.voice.channel.id != voice_state.channel.id:
+        if interaction.user.voice == None:
+            await interaction.response.send_message(content = "You must be in a voice channel.")
+        elif interaction.user.voice.channel.id != voice_state.channel.id:
             return(await interaction.response.send_message("Bot not in your voice chat."))
-        await audio.pause_audio(interaction)
+        else:
+            await audio.pause_audio(interaction)
 
 
     @bot.tree.command(name="resume", description="Resume audio.")
     async def resume(interaction: discord.Interaction):
         voice_state = interaction.guild.voice_client
-        if interaction.user.voice.channel.id != voice_state.channel.id:
+        if interaction.user.voice == None:
+            await interaction.response.send_message(content = "You must be in a voice channel.")
+        elif interaction.user.voice.channel.id != voice_state.channel.id:
             return(await interaction.response.send_message("Bot not in your voice chat."))
-        await audio.resume_audio(interaction)
+        else:
+            await audio.resume_audio(interaction)
 
 
     @bot.tree.command(name="stop", description="Stops audio.")
     async def stop(interaction: discord.Interaction):
         voice_state = interaction.guild.voice_client
-        if interaction.user.voice.channel.id != voice_state.channel.id:
+        if interaction.user.voice == None:
+            await interaction.response.send_message(content = "You must be in a voice channel.")
+        elif interaction.user.voice.channel.id != voice_state.channel.id:
             return(await interaction.response.send_message("Bot not in your voice chat."))
-        await audio.audio_disconnect(interaction)
+        else:
+            await audio.audio_disconnect(interaction)
     
 
     @bot.tree.command(name="skip", description="Skips audio.")
     async def skip(interaction: discord.Interaction):
         voice_state = interaction.guild.voice_client
-        if interaction.user.voice.channel.id != voice_state.channel.id:
+        if interaction.user.voice == None:
+            await interaction.response.send_message(content = "You must be in a voice channel.")
+        elif interaction.user.voice.channel.id != voice_state.channel.id:
             return(await interaction.response.send_message("Bot not in your voice chat."))
-        await audio().audio_skip(interaction)
+        else:
+            await audio().audio_skip(interaction)
             
         
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

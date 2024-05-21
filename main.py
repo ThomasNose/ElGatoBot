@@ -212,6 +212,7 @@ def run():
             n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
 
 
+
     @bot.tree.command(name="collection")
     @app_commands.describe(member = "discord member's monsters")
     async def collection(interaction: discord.Interaction, member: discord.Member):

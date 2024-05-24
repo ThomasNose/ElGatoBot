@@ -25,84 +25,10 @@ from commands.suggestions.suggestions import suggest
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters
 from gaming.currency import message_money_gain, user_balance, pay_user
+from gaming.collectionclass import PaginationView
 
 
 logger = settings.logging.getLogger("bot")
-
-
-class PaginationView(discord.ui.View):
-    """
-        This class is responsible for creating embeds for listing a user's collection.
-        For now this is orientated at a monster collection but different functions
-        can be created later on when needed.
-    """
-    current_page : int = 1
-    sep : int = 6
-    async def send(self, interaction):
-        await interaction.response.send_message(view=self)
-        self.message = await interaction.original_response()
-        await self.update_message(self.data[:self.sep], self.user)
-        
-
-    def create_embed(self, data, user):
-        embed = discord.Embed(title = f"Page {self.current_page} of Collection", \
-                              description=f"<@{user}>'s monsters")
-        for monster, count, rarity, orderid in data:
-            embed.add_field(name=f"{monster} ({rarity})", value=f"Count: {count}", inline=True)
-        return(embed)
-    
-    async def update_message(self, data, user):
-        self.update_buttons()
-        await self.message.edit(embed=self.create_embed(data, user), view = self)
-    
-
-    def update_buttons(self):
-        if self.current_page == 1:
-            self.first_page_button.disabled = True
-            self.previous_button.disabled = True
-        else:
-            self.first_page_button.disabled = False
-            self.previous_button.disabled = False
-        if self.current_page ==  math.ceil(len(self.data) / self.sep):
-            self.next_button.disabled = True
-            self.last_page_button.disabled = True
-        else:
-            self.next_button.disabled = False
-            self.last_page_button.disabled = False
-
-    
-    @discord.ui.button(label="First", style = discord.ButtonStyle.primary)
-    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button,):
-        await interaction.response.defer()
-        self.current_page = 1
-        until_item = self.current_page * self.sep
-        await self.update_message(self.data[:until_item], self.user)
-
-    @discord.ui.button(label="Next", style = discord.ButtonStyle.primary)
-    async def next_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page += 1
-        until_item = self.current_page * self.sep
-        from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:until_item], self.user)
-
-    @discord.ui.button(label="Previous", style = discord.ButtonStyle.primary)
-    async def previous_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page -= 1
-        until_item = self.current_page * self.sep
-        from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:until_item], self.user)
-
-    @discord.ui.button(label="Last",
-                       style = discord.ButtonStyle.primary)
-    async def last_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page =  math.ceil(len(self.data) / self.sep)
-        until_item = self.current_page * self.sep
-        from_item = until_item - self.sep
-        await self.update_message(self.data[from_item:], self.user)
-
 
 Generating = False
 botid = None
@@ -184,7 +110,7 @@ def run():
             channel = message.channel
             if monstername != None:
                 try:
-                    file = discord.File(f"gaming/monsters/{monstername.lower()}"+"-image.png")
+                    file = discord.File(f"gaming/monsters/monster_derivatives/{monstername.lower()}/{monstername.lower()}"+"-image-128_x_128.png")
                 except:
                     file = None
                     print(f"No image of {monstername} exists yet.")
@@ -222,7 +148,6 @@ def run():
         pagination_view.data = usermonsters
         pagination_view.user = member.id
         await pagination_view.send(interaction)
-
 
 
     @bot.tree.command(name="balance", description="Discord member's balance")

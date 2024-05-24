@@ -140,14 +140,21 @@ def run():
 
 
     @bot.tree.command(name="collection")
-    @app_commands.describe(member = "discord member's monsters")
-    async def collection(interaction: discord.Interaction, member: discord.Member):
+    @app_commands.describe(member = "discord member's monsters", ctx = "Monster images?")
+    async def collection(interaction: discord.Interaction, member: discord.Member, ctx: bool):
         usermonsters = my_monsters(interaction.guild.id,member.id)
 
-        pagination_view = PaginationView()
-        pagination_view.data = usermonsters
-        pagination_view.user = member.id
-        await pagination_view.send(interaction)
+        if ctx == False:
+            pagination_view = PaginationView(sep=6)
+            pagination_view.data = usermonsters
+            pagination_view.user = member.id
+            await pagination_view.send(interaction)
+        else:
+            pagination_view = PaginationView(sep=1)
+            pagination_view.data = usermonsters
+            pagination_view.user = member.id
+            await pagination_view.send(interaction)
+
 
 
     @bot.tree.command(name="balance", description="Discord member's balance")

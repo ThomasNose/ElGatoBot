@@ -25,7 +25,6 @@ class PaginationView(discord.ui.View):
             embed.add_field(name=f"{monster} ({rarity})", value=f"Count: {count}", inline=True)
             if self.sep == 1:
                 try:
-                    print(f"https://raw.githubusercontent.com/ThomasNose/ElGatoBot/main/gaming/monsters/monster_derivatives/{monster.lower()}/{monster.lower()}-image-64_x_64.png")
                     embed.set_image(url=f"https://raw.githubusercontent.com/ThomasNose/ElGatoBot/main/gaming/monsters/monster_derivatives/{monster.lower()}/{monster.lower()}-image-64_x_64.png")
                 except Exception as e:
                     print(e)
@@ -38,7 +37,6 @@ class PaginationView(discord.ui.View):
 
     def update_buttons(self):
         max_page = math.ceil(len(self.data) / self.sep)
-        print(self.current_page, max_page)
         if self.current_page == 1:
             self.first_page_button.disabled = True
             self.previous_button.disabled = True

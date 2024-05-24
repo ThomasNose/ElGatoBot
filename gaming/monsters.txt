@@ -8,7 +8,7 @@ monsterid,monstername,species,gender,rarity
 7,Serpentine,Reptile,Male,COMMON
 8,Fågell,Humanoid,Male,COMMON
 9,Magirol,Aquatic,Female,COMMON
-10,Percival the 4th,Aquatic,Male,COMMON
+10,Percival-the-4th,Aquatic,Male,COMMON
 11,Fluffletail,Fairy,Male,UNCOMMON
 12,Sparklizard,Dragon,Female,UNCOMMON
 13,Coraloon,Aquatic,Male,UNCOMMON

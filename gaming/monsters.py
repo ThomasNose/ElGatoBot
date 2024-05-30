@@ -37,14 +37,18 @@ def monster_drop(message):
         "dropped_at": message.created_at
     }
     # Construct the SQL query
-    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {int(data['monsterid'])}, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
+    cur.execute(f"select count(1) from usermonsters where guildid = '{data['guildid']}' and monsterid = '{data['monsterid']}'")
+    # Current number of this monster in the guild + 1
+    num = cur.fetchone()[0] + 1
+
+    cur.execute(f"SELECT monstername from monsters where monsterid = {monsterid}")
+    monstername = cur.fetchone()
+    # Inserting dropped monster into table with a unique nickname per guild
+    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {int(data['monsterid'])}, concat('{monstername[0]}',LPAD({num}::text, 6, '0'),'_',left('{data['guildid']}',3),right('{data['guildid']}',3)), null, null, null, 10, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
 
     cur.execute(query)
 
     conn.commit()
-
-    cur.execute(f"SELECT monstername from monsters where monsterid = {monsterid}")
-    monstername = cur.fetchone()
 
     conn.close()
     
@@ -68,6 +72,55 @@ def my_monsters(guild, user):
     conn.close()
     return(mine)
 
+def my_monsters_nicks(guild, user):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+
+    userid = user
+    guildid = guild
+    query = f"SELECT m.monstername, u.monsternick, lower(m.rarity), str + coalesce(bonus_str,0) as str, pwr + coalesce(bonus_pwr,0) as pwr, evn + coalesce(bonus_evn,0) as evn, orderid FROM usermonsters u \
+            JOIN discordusers d ON u.userid = d.userid \
+            JOIN monsters m ON u.monsterid = m.monsterid \
+            WHERE u.userid = cast({userid} as varchar) and guildid = cast({guildid} as varchar) \
+            ORDER BY orderid desc, 2 desc"
+    cur.execute(query)
+    mine = cur.fetchall()
+
+    conn.close()
+    return(mine)
+
+def monster_combat(guildid, user, monster):
+    query = f"SELECT m.monstername, u.monsternick, str + bonus_str, pwr + bonus_pwr, evn + evn + bonus_pwr \
+            from usermonsters u \
+            JOIN  discordusers d on u.userid = d.userid \
+            JOIN monsters m ON u.monsterid = m.monsterid \
+    "
+
+async def monster_nick(interaction, old_nick, new_nick):
+    """
+        Updates monster nickname.
+    """
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    query = f"SELECT userid from usermonsters where monsternick = '{old_nick}' and guildid = '{interaction.guild.id}'"
+    cur.execute(query)
+    try:
+        owner = cur.fetchone()[0]
+    except:
+        await interaction.response.send_message(content = "Monster nick doesn't exist.")
+        return()
+    if int(owner) != interaction.user.id:
+        await interaction.response.send_message(content = "You don't own this monster.")
+        conn.close()
+    else:
+        try:
+            cur.execute(f"update usermonsters set monsternick = '{new_nick}' where monsternick = '{old_nick}' and guildid = '{interaction.guild.id}'")
+            conn.commit()
+            conn.close()
+            await interaction.response.send_message(content = "Nickname updated.")
+        except Exception as e:
+            await interaction.response.send_message(content = "Exception or nickname not unique.")
+            print(e)
 
 def gen_rarity():
     """

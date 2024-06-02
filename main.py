@@ -95,7 +95,7 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         Drop = 50
-        Chance = random.randint(1,100)
+        Chance = random.randint(1,200)
 
         # Reading from local file. This is replacing a DB connection which is awful per message.
         with open("gaming/latest_drop.txt","r") as file:

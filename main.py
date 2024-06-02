@@ -431,11 +431,11 @@ def run():
             await audio.audio_clear(interaction)
 
 
-    @bot.tree.command(name="reaction", description="Testing reactions.")
-    async def react(interaction: discord.Interaction):
-        await interaction.response.send_message(content="This is a test reaction message")
-        message = await interaction.original_response()
-        await message.add_reaction(discord.utils.get(interaction.guild.emojis, name="happycat"))
+    #@bot.tree.command(name="reaction", description="Testing reactions.")
+    #async def react(interaction: discord.Interaction):
+    #    await interaction.response.send_message(content="This is a test reaction message")
+    #    message = await interaction.original_response()
+    #    await message.add_reaction(discord.utils.get(interaction.guild.emojis, name="happycat"))
         #interaction.message.add_reaction(emoji = ":ok_hand:")
         
 

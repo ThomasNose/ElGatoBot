@@ -37,7 +37,14 @@ def monster_drop(message):
         "dropped_at": message.created_at
     }
     # Construct the SQL query
-    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {int(data['monsterid'])}, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
+    cur.execute(f"select count(1) from usermonsters where guildid = '{data['guildid']}' and monsterid = '{data['monsterid']}'")
+    # Current number of this monster in the guild + 1
+    num = cur.fetchone()[0] + 1
+
+    cur.execute(f"SELECT monstername from monsters where monsterid = {monsterid}")
+    monstername = cur.fetchone()
+    # Inserting dropped monster into table with a unique nickname per guild
+    query = f"INSERT INTO usermonsters values('{data['monsterkey']}', {int(data['monsterid'])}, concat('{monstername[0]}',LPAD({num}::text, 6, '0'),'_',left('{data['guildid']}',3),right('{data['guildid']}',3)), null, null, null, 10, '{data['userid']}', '{data['guildid']}', cast('{data['dropped_at']}' as timestamp))"
 
     cur.execute(query)
 

@@ -140,17 +140,32 @@ def run():
 
 
     @bot.tree.command(name="collection")
-    @app_commands.describe(member = "discord member's monsters", ctx = "Monster images?")
-    async def collection(interaction: discord.Interaction, member: discord.Member, ctx: bool):
-        usermonsters = my_monsters(interaction.guild.id,member.id)
+    @app_commands.describe(member = "discord member's monsters", list_type = "group, images, list")
+    @app_commands.choices(list_type=[
+        app_commands.Choice(name="group", value="group"),
+        app_commands.Choice(name="images", value="images"),
+        app_commands.Choice(name="list", value="list")
+    ])
+    async def collection(interaction: discord.Interaction, member: discord.Member, list_type: app_commands.Choice[str]):
+        type = list_type.value
+        if type in ("group","images"):
+            usermonsters = my_monsters(interaction.guild.id,member.id)
+        elif type in ("list"):
+            usermonsters = my_monsters_nicks(interaction.guild.id,member.id)
 
-        if ctx == False:
+
+        if type == "group":
             pagination_view = PaginationView(sep=6)
             pagination_view.data = usermonsters
             pagination_view.user = member.id
             await pagination_view.send(interaction)
-        else:
+        elif type == "images":
             pagination_view = PaginationView(sep=1)
+            pagination_view.data = usermonsters
+            pagination_view.user = member.id
+            await pagination_view.send(interaction)
+        elif type == "list":
+            pagination_view = PaginationView(sep=6)
             pagination_view.data = usermonsters
             pagination_view.user = member.id
             await pagination_view.send(interaction)
@@ -424,19 +439,19 @@ def run():
         #interaction.message.add_reaction(emoji = ":ok_hand:")
         
 
-    @bot.event
-    async def on_raw_reaction_add(payload):
-        # Check if the reaction is added to a specific message ID
-        channel = bot.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-
-        user = bot.get_user(payload.user_id)
-        emoji = payload.emoji
-
-        if str(emoji).split(":")[1] == "happycat" and payload.user_id != botid and message.content != "Clicked":  # Replace with your server emoji string
-            await message.edit(content = "Clicked")
-        elif message.content == "Clicked":
-            pass
+    #@bot.event
+    #async def on_raw_reaction_add(payload):
+    #    # Check if the reaction is added to a specific message ID
+    #    channel = bot.get_channel(payload.channel_id)
+    #    message = await channel.fetch_message(payload.message_id)
+#
+    #    user = bot.get_user(payload.user_id)
+    #    emoji = payload.emoji
+#
+    #    if str(emoji).split(":")[1] == "happycat" and payload.user_id != botid and message.content != "Clicked":  # Replace with your server emoji string
+    #        await message.edit(content = "Clicked")
+    #    elif message.content == "Clicked":
+    #        pass
 
 
     @bot.tree.command(name="fight")
@@ -450,8 +465,8 @@ def run():
         opponent_monster = await monster_combat(interaction, interaction.guild.id, member.id, theirs)
 
         # The actual monster
-        chal_monster = challenger_monster[0]
-        opp_monster = opponent_monster[0]
+        chal_monster = challenger_monster[1]
+        opp_monster = opponent_monster[1]
 
         chal_stat = {"STR1":challenger_monster[2],"PWR1":challenger_monster[3],"EVN1":challenger_monster[4]}
         opp_stat = {"STR2":opponent_monster[2],"PWR2":opponent_monster[3],"EVN2":opponent_monster[4]}
@@ -462,6 +477,17 @@ def run():
         pagination_view.chal_monster = chal_monster
         pagination_view.opp_monster = opp_monster
         await pagination_view.send(interaction)
+
+    @bot.tree.command(name="nick")
+    @app_commands.describe(old = "Current nickname", new = "New nickname")
+    async def nickname(interaction: discord.Interaction, old: str, new: str):
+
+        # If nickname is too long
+        if len(new) > 20:
+            await interaction.send_message(content = "Nickname must not exceed 20 characters.")
+            return()
+        
+        await monster_nick(interaction, old, new)
 
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

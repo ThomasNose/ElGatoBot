@@ -237,8 +237,8 @@ class FightingView(discord.ui.View):
 
     @discord.ui.button(label="Accept", style = discord.ButtonStyle.primary)
     async def Accept(self, interaction:discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id == self.opponent:
-            await interaction.response.defer()
-            self.Accept.disabled = True
-            self.update_buttons()
-            await interaction.message.edit(embed=self.create_embed(self.curr_monster, self.opponent), view = self)
+        #if interaction.user.id == self.opponent:
+        await interaction.response.defer()
+        self.Accept.disabled = True
+        self.update_buttons()
+        await interaction.message.edit(embed=self.create_embed(self.curr_monster, self.opponent), view = self)

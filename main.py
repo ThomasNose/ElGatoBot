@@ -23,9 +23,9 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from commands.suggestions.suggestions import suggest
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
-from gaming.monsters import monster_drop, my_monsters
+from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat
 from gaming.currency import message_money_gain, user_balance, pay_user
-from gaming.collectionclass import PaginationView
+from gaming.classes import PaginationView, FightingView
 
 
 logger = settings.logging.getLogger("bot")
@@ -95,7 +95,7 @@ def run():
     @bot.listen('on_message')
     async def on_message(message):
         Drop = 50
-        Chance = random.randint(1,100)
+        Chance = random.randint(1,200)
 
         # Reading from local file. This is replacing a DB connection which is awful per message.
         with open("gaming/latest_drop.txt","r") as file:
@@ -140,17 +140,32 @@ def run():
 
 
     @bot.tree.command(name="collection")
-    @app_commands.describe(member = "discord member's monsters", ctx = "Monster images?")
-    async def collection(interaction: discord.Interaction, member: discord.Member, ctx: bool):
-        usermonsters = my_monsters(interaction.guild.id,member.id)
+    @app_commands.describe(member = "discord member's monsters", list_type = "group, images, list")
+    @app_commands.choices(list_type=[
+        app_commands.Choice(name="group", value="group"),
+        app_commands.Choice(name="images", value="images"),
+        app_commands.Choice(name="list", value="list")
+    ])
+    async def collection(interaction: discord.Interaction, member: discord.Member, list_type: app_commands.Choice[str]):
+        type = list_type.value
+        if type in ("group","images"):
+            usermonsters = my_monsters(interaction.guild.id,member.id)
+        elif type in ("list"):
+            usermonsters = my_monsters_nicks(interaction.guild.id,member.id)
 
-        if ctx == False:
+
+        if type == "group":
             pagination_view = PaginationView(sep=6)
             pagination_view.data = usermonsters
             pagination_view.user = member.id
             await pagination_view.send(interaction)
-        else:
+        elif type == "images":
             pagination_view = PaginationView(sep=1)
+            pagination_view.data = usermonsters
+            pagination_view.user = member.id
+            await pagination_view.send(interaction)
+        elif type == "list":
+            pagination_view = PaginationView(sep=6)
             pagination_view.data = usermonsters
             pagination_view.user = member.id
             await pagination_view.send(interaction)
@@ -337,8 +352,8 @@ def run():
         await trade_cancel(interaction, interaction.user.id)
     
     @bot.tree.command(name="give", description="Give a monster for nothing in return.")
-    async def give(interaction: discord.Interaction, member: discord.Member, monstername: str):
-        await monster_give(interaction, member, monstername)
+    async def give(interaction: discord.Interaction, member: discord.Member, monsternick: str):
+        await monster_give(interaction, member, monsternick)
 
     @bot.tree.command(name="pay", description="Pay a user coins.")
     async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):
@@ -414,8 +429,67 @@ def run():
             return(await interaction.response.send_message("Bot not in your voice chat."))
         else:
             await audio.audio_clear(interaction)
-            
+
+
+    #@bot.tree.command(name="reaction", description="Testing reactions.")
+    #async def react(interaction: discord.Interaction):
+    #    await interaction.response.send_message(content="This is a test reaction message")
+    #    message = await interaction.original_response()
+    #    await message.add_reaction(discord.utils.get(interaction.guild.emojis, name="happycat"))
+        #interaction.message.add_reaction(emoji = ":ok_hand:")
         
+
+    #@bot.event
+    #async def on_raw_reaction_add(payload):
+    #    # Check if the reaction is added to a specific message ID
+    #    channel = bot.get_channel(payload.channel_id)
+    #    message = await channel.fetch_message(payload.message_id)
+#
+    #    user = bot.get_user(payload.user_id)
+    #    emoji = payload.emoji
+#
+    #    if str(emoji).split(":")[1] == "happycat" and payload.user_id != botid and message.content != "Clicked":  # Replace with your server emoji string
+    #        await message.edit(content = "Clicked")
+    #    elif message.content == "Clicked":
+    #        pass
+
+
+    @bot.tree.command(name="fight")
+    @app_commands.describe(member = "Who to fight", mine = "My monster (must be nickname)", theirs = "Their monster (must be nickname)")
+    async def combat(interaction: discord.Interaction, member: discord.Member, mine: str, theirs: str):
+        """
+            Creating a combat system.
+        """
+
+        challenger_monster = await monster_combat(interaction, interaction.guild.id, interaction.user.id, mine)
+        opponent_monster = await monster_combat(interaction, interaction.guild.id, member.id, theirs)
+
+        # The actual monster
+        chal_monster = challenger_monster[1]
+        opp_monster = opponent_monster[1]
+
+        chal_stat = {"STR1":challenger_monster[2],"PWR1":challenger_monster[3],"EVN1":challenger_monster[4]}
+        opp_stat = {"STR2":opponent_monster[2],"PWR2":opponent_monster[3],"EVN2":opponent_monster[4]}
+        # Need logic to determine what view to show 
+        pagination_view = FightingView(STR1=chal_stat["STR1"], PWR1=chal_stat["PWR1"], EVN1=chal_stat["EVN1"], \
+                                       STR2=opp_stat["STR2"], PWR2=opp_stat["PWR2"], EVN2=opp_stat["EVN2"], \
+                                       challenger = interaction.user.id, opponent = member.id)
+        pagination_view.chal_monster = chal_monster
+        pagination_view.opp_monster = opp_monster
+        await pagination_view.send(interaction)
+
+    @bot.tree.command(name="nick")
+    @app_commands.describe(old = "Current nickname", new = "New nickname")
+    async def nickname(interaction: discord.Interaction, old: str, new: str):
+
+        # If nickname is too long
+        if len(new) > 20:
+            await interaction.send_message(content = "Nickname must not exceed 20 characters.")
+            return()
+        
+        await monster_nick(interaction, old, new)
+
+
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 

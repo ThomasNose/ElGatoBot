@@ -320,8 +320,12 @@ class UpgradeMonster(discord.ui.View):
     def update_buttons(self, bonus):
         if bonus <= 0 or self.bal < (11-bonus) * 5:
             self.STR.disabled = True
+            self.PWR.disabled = True
+            self.EVN.disabled = True
         else:
             self.STR.disabled = False
+            self.PWR.disabled = False
+            self.EVN.disabled = False
 
 
     @discord.ui.button(label="STR", style = discord.ButtonStyle.primary)
@@ -333,6 +337,36 @@ class UpgradeMonster(discord.ui.View):
 
             # if 0 then no bonus left, if "bal" then no money
             if str_stat == 0 or str_stat == "bal":
+                self.update_buttons(0)
+            else:
+                self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+                await self.update_message(stats)
+
+
+    @discord.ui.button(label="PWR", style = discord.ButtonStyle.primary)
+    async def PWR(self, interaction:discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id == self.user:
+            await interaction.response.defer()
+            pwr_stat = await stat_upgrade(interaction, self.nick, "PWR")
+            stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+
+            # if 0 then no bonus left, if "bal" then no money
+            if pwr_stat == 0 or pwr_stat == "bal":
+                self.update_buttons(0)
+            else:
+                self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+                await self.update_message(stats)
+
+
+    @discord.ui.button(label="EVN", style = discord.ButtonStyle.primary)
+    async def EVN(self, interaction:discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id == self.user:
+            await interaction.response.defer()
+            evn_stat = await stat_upgrade(interaction, self.nick, "EVN")
+            stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+
+            # if 0 then no bonus left, if "bal" then no money
+            if evn_stat == 0 or evn_stat == "bal":
                 self.update_buttons(0)
             else:
                 self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)

@@ -204,7 +204,7 @@ class FightingView(discord.ui.View):
 
     def create_embed(self, monster, opponent, dmg):
         embed = discord.Embed(title = f"{self.user}'s turn.", \
-                              description=f"Friendly combat.")
+                              description=f"Combat for {self.amount} - winnings **{self.amount *2}**.")
         
         if dmg != None:
             embed = discord.Embed(title = f"{self.user}'s turn.", \

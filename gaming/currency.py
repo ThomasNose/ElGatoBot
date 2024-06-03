@@ -33,12 +33,12 @@ def message_money_gain(message):
     return()
 
 
-def user_balance(message):
+def user_balance(user, guild):
     conn = connect_db(postgres)
     cur = conn.cursor()
     cur.execute(f"SELECT b.amount, c.currencyname FROM user_balance b \
                 JOIN currencies c on b.currencyid = c.currencyid \
-                WHERE b.userid = '{message.user.id}' and b.guildid = '{message.guild.id}' and c.currencyid = 1")
+                WHERE b.userid = '{user}' and b.guildid = '{guild}' and c.currencyid = 1")
     results = cur.fetchall()
     conn.close()
     return(results)
@@ -66,3 +66,26 @@ async def pay_user(interaction, member, payment):
     conn.commit()
     conn.close()
     return(await interaction.response.send_message(f"<@{interaction.user.id}> paid <@{member.id}> {payment} coins."))
+
+async def balance_both(user1, user2, guild, amount):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    cur.execute(f"SELECT amount FROM user_balance \
+                WHERE guildid = '{guild}' AND userid in ('{user1}','{user2}')")
+    balances = cur.fetchall()
+    if round(balances[0][0],5) >= amount and round(balances[1][0],5) >= amount:
+        cur.execute(f"UPDATE user_balance \
+                    SET amount = amount - {amount} \
+                    WHERE guildid = '{guild}' AND userid in ('{user1}','{user2}')")
+        conn.commit()
+        return(True)
+    else:
+        return(False)
+    
+async def combat_pay(user, guild, currency, amount):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE user_balance \
+                SET amount = amount + {amount} \
+                WHERE userid = '{user}' AND guildid = '{guild}' and currencyid = {currency}")
+    conn.commit()

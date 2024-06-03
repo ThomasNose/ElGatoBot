@@ -6,6 +6,7 @@ import datetime as datetime
 
 from utils.connect_db import connect_db
 from gaming.roll import CustomDistributionModel
+from gaming.currency import user_balance
 
 postgres = settings.POSTGRES_LOGIN_DETAILS
 
@@ -95,7 +96,7 @@ def my_monsters_nicks(guild, user):
 async def monster_combat(interaction, guildid, user, monster_nick):
     conn = connect_db(postgres)
     cur = conn.cursor()
-    query = f"SELECT m.monstername, u.monsternick, str + coalesce(bonus_str, 0), pwr + coalesce(bonus_pwr, 0), evn + evn + coalesce(bonus_pwr, 0) \
+    query = f"SELECT m.monstername, u.monsternick, str + coalesce(bonus_str, 0), pwr + coalesce(bonus_pwr, 0), evn + coalesce(bonus_evn, 0), bonus_left \
             from usermonsters u \
             JOIN  discordusers d on u.userid = d.userid \
             JOIN monsters m ON u.monsterid = m.monsterid \
@@ -103,9 +104,10 @@ async def monster_combat(interaction, guildid, user, monster_nick):
     "
     cur.execute(query)
     stats = cur.fetchone()
+
     if stats == None:
         await interaction.response.send_message(content = f"{monster_nick} nickname doesn't exist. See nicknames in parentheses of /collection user list")
-        return()
+        return(None)
     else:
         return(stats)
 
@@ -144,3 +146,48 @@ def gen_rarity():
     RARITY = model.generate_sample()
 
     return(RARITY)
+
+async def stat_upgrade(interaction, nick, type):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    cur.execute(f"SELECT bonus_left from usermonsters \
+                WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}' AND monsternick = '{nick}'")
+    left = cur.fetchone()
+    if left[0] <= 0:
+        return(0)
+    
+    bal = user_balance(interaction.user.id, interaction.guild.id)
+    bal = round(bal[0][0],4)
+    cost = (11-left[0]) * 5
+
+    if bal >= cost:
+        cur.execute(f"UPDATE usermonsters \
+                    SET bonus_{type.lower()} = coalesce(bonus_{type.lower()},0) + 1, \
+                        bonus_left = bonus_left - 1 \
+                    WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}' AND monsternick = '{nick}' and bonus_left > 0")
+        cur.execute(f"UPDATE user_balance \
+                    SET amount = amount - {cost} \
+                    WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}'")
+        conn.commit()
+        return(bal)
+    else:
+        return("bal")
+    
+
+async def ownership(interaction, nick):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    query = f"SELECT userid from usermonsters where monsternick = '{nick}' and guildid = '{interaction.guild.id}'"
+    cur.execute(query)
+    try:
+        owner = cur.fetchone()[0]
+    except:
+        await interaction.response.send_message(content = "Monster nick doesn't exist.")
+        conn.close()
+        return("Exist")
+    if int(owner) != interaction.user.id:
+        await interaction.response.send_message(content = "You don't own this monster.")
+        conn.close()
+        return("Own")
+    else:
+        return()

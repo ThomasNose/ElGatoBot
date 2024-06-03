@@ -2,6 +2,9 @@ import discord
 import math
 import random
 
+from gaming.currency import balance_both, combat_pay, user_balance
+from gaming.monsters import stat_upgrade, monster_combat
+
 class PaginationView(discord.ui.View):
     """
         This class is responsible for creating embeds for listing a user's collection.
@@ -142,8 +145,11 @@ class FightingView(discord.ui.View):
         >> Provide user turns.
         >> Declare a winner.
     """
-    def __init__(self, STR1 = 5, PWR1 = 5, EVN1 = 5, STR2 = 5, PWR2 = 5, EVN2 = 5, challenger = None, opponent = None):
+    def __init__(self, STR1 = 5, PWR1 = 5, EVN1 = 5, STR2 = 5, PWR2 = 5, EVN2 = 5, challenger = None, opponent = None, amount = 0.00):
         super().__init__()
+        self.winner = None
+        self.amount = amount
+
         self.current_turn = 1
         self.challenger = challenger
         self.opponent = opponent
@@ -163,6 +169,7 @@ class FightingView(discord.ui.View):
 
         # Current turn display metrics
         self.curr_user = random.choice([challenger,opponent])
+        self.user = None
         self.curr_monster = None
         self.curr_hp = None
         self.curr_str = None
@@ -171,6 +178,7 @@ class FightingView(discord.ui.View):
 
     async def send(self, interaction):
         if self.curr_user == self.challenger:
+            self.user = self.chal
             self.curr_monster = self.chal_monster
             self.curr_hp = self.HP1
             self.curr_str = self.STR1
@@ -178,6 +186,7 @@ class FightingView(discord.ui.View):
             self.curr_evn = self.EVN1
         else:
             self.curr_monster = self.opp_monster
+            self.user = self.opp
             self.curr_hp = self.HP2
             self.curr_str = self.STR1
             self.curr_pwr = self.PWR1
@@ -185,26 +194,35 @@ class FightingView(discord.ui.View):
 
         await interaction.response.send_message(view=self)
         self.message = await interaction.original_response()
-        await self.update_message(self.curr_monster, self.opponent)
+        await self.update_message(self.curr_monster, self.opponent, None)
 
     
-    async def update_message(self, curr_monster, opponent):
+    async def update_message(self, curr_monster, opponent, dmg):
         self.update_buttons()
-        await self.message.edit(embed=self.create_embed(curr_monster, opponent), view = self)
+        await self.message.edit(embed=self.create_embed(curr_monster, opponent, dmg), view = self)
 
 
-    def create_embed(self, monster, opponent):
-        embed = discord.Embed(title = f"{self.curr_user}'s turn.", \
-                              description=f"<@{self.curr_user}>'s monster")
+    def create_embed(self, monster, opponent, dmg):
+        embed = discord.Embed(title = f"{self.user}'s turn.", \
+                              description=f"Combat for {self.amount} - winnings **{self.amount *2}**.")
+        
+        if dmg != None:
+            embed = discord.Embed(title = f"{self.user}'s turn.", \
+                              description=f"{self.curr_monster} took {dmg} damage.")
+
         if self.HP1 <= 1 or self.HP2 <= 1:
+            embed = discord.Embed(title = f"**{self.user}'s loss.**", \
+                                  description= f"<@{self.winner}> won **{self.amount *2}** coins.")
             embed.add_field(name=f"{monster}", value=f"Fainted.", inline=True)
+
         else:
-            embed.add_field(name=f"{monster} HP: {self.curr_hp}", value=f"STR:{self.curr_str}, PWR:{self.curr_pwr}, EVN:{self.curr_evn}", inline=True)
+            embed.add_field(name=f"{self.chal_monster} HP: {self.HP1}", value=f"STR:{self.STR1}, PWR:{self.PWR1}, EVN:{self.EVN1}", inline=True)
+            embed.add_field(name=f"{self.opp_monster} HP: {self.HP2}", value=f"STR:{self.STR2}, PWR:{self.PWR2}, EVN:{self.EVN2}", inline=True)
         return(embed)
 
 
     def update_buttons(self):
-        if self.HP1 <= 0 or self.Accept.disabled == False:
+        if self.HP1 <= 0 or self.HP2 <= 0 or self.Accept.disabled == False:
             self.Attack1.disabled = True
         else:
             self.Attack1.disabled = False
@@ -217,23 +235,39 @@ class FightingView(discord.ui.View):
             self.current_turn += 1
 
             if self.curr_user == self.challenger:
-                self.HP2 -= random.randint(1,6+self.PWR1)
-                self.curr_user = self.opponent
-                self.curr_monster = self.opp_monster
-                self.curr_hp = self.HP2
-                self.curr_str = self.STR2
-                self.curr_pwr = self.PWR2
-                self.curr_evn = self.EVN2
+                dmg = random.randint(1,6+self.PWR1)
+                self.HP2 -= dmg
+                if self.HP2 <= 0:
+                    self.winner = self.challenger
+                    self.user = self.opp
+                    self.curr_monster = self.opp_monster
+                    await combat_pay(self.winner, interaction.guild.id, 1, self.amount * 2)
+                else:
+                    self.curr_user = self.opponent
+                    self.user = self.opp
+                    self.curr_monster = self.opp_monster
+                    self.curr_hp = self.HP2
+                    self.curr_str = self.STR2
+                    self.curr_pwr = self.PWR2
+                    self.curr_evn = self.EVN2
             else:
-                self.HP1 -= random.randint(1,6+self.PWR2)
-                self.curr_user = self.challenger
-                self.curr_monster = self.chal_monster
-                self.curr_hp = self.HP1
-                self.curr_str = self.STR1
-                self.curr_pwr = self.PWR1
-                self.curr_evn = self.EVN1
+                dmg = random.randint(1,6+self.PWR2)
+                self.HP1 -= dmg
+                if self.HP1 <= 0:
+                    self.winner = self.opponent
+                    self.user = self.chal
+                    self.curr_monster = self.chal_monster
+                    await combat_pay(self.winner, interaction.guild.id, 1, self.amount * 2)
+                else:
+                    self.curr_user = self.challenger
+                    self.user = self.chal
+                    self.curr_monster = self.chal_monster
+                    self.curr_hp = self.HP1
+                    self.curr_str = self.STR1
+                    self.curr_pwr = self.PWR1
+                    self.curr_evn = self.EVN1
 
-            await self.update_message(self.curr_monster, self.opponent)
+            await self.update_message(self.curr_monster, self.opponent, dmg)
 
     @discord.ui.button(label="Accept", style = discord.ButtonStyle.primary)
     async def Accept(self, interaction:discord.Interaction, button: discord.ui.Button):
@@ -241,4 +275,65 @@ class FightingView(discord.ui.View):
             await interaction.response.defer()
             self.Accept.disabled = True
             self.update_buttons()
-            await interaction.message.edit(embed=self.create_embed(self.curr_monster, self.opponent), view = self)
+
+            bal_both = await balance_both(self.challenger, self.opponent, interaction.guild.id, self.amount)
+            if bal_both == False:
+                await interaction.response.send_message(content = "Users don't have sufficient balance.")
+                return()
+            if self.amount < 0.0:
+                await interaction.response.send_message(content = "Wager amount must be positive")
+                return()
+            
+            await interaction.message.edit(embed=self.create_embed(self.curr_monster, self.opponent, None), view = self)
+
+
+class UpgradeMonster(discord.ui.View):
+    def __init__(self, monster_nick, user):
+        super().__init__()
+        self.nick = monster_nick
+        self.user = user
+        self.bal = None
+
+    async def send(self, interaction):
+        await interaction.response.send_message(view=self)
+        self.message = await interaction.original_response()
+        stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+        #self.bal = self.user_bal(interaction)
+        self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+        await self.update_message(stats)
+
+    async def update_message(self, stats):
+        self.update_buttons(stats[5])
+        bal = self.bal
+        await self.message.edit(embed=self.create_embed(self.nick, stats[0], stats[2], stats[3], stats[4], stats[5]), view = self)
+
+
+    def create_embed(self, nick, monster, str, pwr, evn, bonus):
+        embed = discord.Embed(title = f"Upgrade menu for {self.username}'s \n{monster}, {nick}.", \
+                              description = f"Stat cost: {(11-bonus) * 5} - Balance: {self.bal} - bonus left: {bonus}")
+        embed.add_field(name = "Strength", value = f"{str}", inline=True)
+        embed.add_field(name = "Power", value = f"{pwr}", inline=True)
+        embed.add_field(name = "Evasion", value = f"{evn}", inline=True)
+        return(embed)
+    
+
+    def update_buttons(self, bonus):
+        if bonus <= 0 or self.bal < (11-bonus) * 5:
+            self.STR.disabled = True
+        else:
+            self.STR.disabled = False
+
+
+    @discord.ui.button(label="STR", style = discord.ButtonStyle.primary)
+    async def STR(self, interaction:discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id == self.user:
+            await interaction.response.defer()
+            str_stat = await stat_upgrade(interaction, self.nick, "STR")
+            stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+
+            # if 0 then no bonus left, if "bal" then no money
+            if str_stat == 0 or str_stat == "bal":
+                self.update_buttons(0)
+            else:
+                self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+                await self.update_message(stats)

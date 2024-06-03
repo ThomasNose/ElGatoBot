@@ -23,9 +23,9 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from commands.suggestions.suggestions import suggest
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
-from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat
+from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat, ownership
 from gaming.currency import message_money_gain, user_balance, pay_user
-from gaming.classes import PaginationView, FightingView
+from gaming.classes import PaginationView, FightingView, UpgradeMonster
 
 
 logger = settings.logging.getLogger("bot")
@@ -174,7 +174,7 @@ def run():
 
     @bot.tree.command(name="balance", description="Discord member's balance")
     async def balance(interaction: discord.Interaction):
-        userbalance = user_balance(interaction)
+        userbalance = user_balance(interaction.user.id, interaction.guild.id)
         
         embed = discord.Embed(
             colour=discord.Colour.dark_teal(),
@@ -357,6 +357,7 @@ def run():
 
     @bot.tree.command(name="pay", description="Pay a user coins.")
     async def pay(interaction: discord.Interaction, member: discord.Member, amount: float):
+        amount = round(amount,4)
         await pay_user(interaction, member, amount)
 
 
@@ -455,14 +456,24 @@ def run():
 
 
     @bot.tree.command(name="fight")
-    @app_commands.describe(member = "Who to fight", mine = "My monster (must be nickname)", theirs = "Their monster (must be nickname)")
-    async def combat(interaction: discord.Interaction, member: discord.Member, mine: str, theirs: str):
+    @app_commands.describe(member = "Who to fight", mine = "My monster (must be nickname)", theirs = "Their monster (must be nickname)", amount = "Wager amount.")
+    async def combat(interaction: discord.Interaction, member: discord.Member, mine: str, theirs: str, amount: float):
         """
             Creating a combat system.
         """
+        if amount < 0:
+            await interaction.response.send_message(content = "Wager must be 0 or greater.")
+            return()
+        
+        elif amount > round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4) \
+            or amount > round(user_balance(member.id, interaction.guild.id)[0][0],4):
+            await interaction.response.send_message(content = "User balance insufficient.")
+            return()
 
         challenger_monster = await monster_combat(interaction, interaction.guild.id, interaction.user.id, mine)
         opponent_monster = await monster_combat(interaction, interaction.guild.id, member.id, theirs)
+        if None in (challenger_monster,opponent_monster):
+            return()
 
         # The actual monster
         chal_monster = challenger_monster[1]
@@ -470,12 +481,15 @@ def run():
 
         chal_stat = {"STR1":challenger_monster[2],"PWR1":challenger_monster[3],"EVN1":challenger_monster[4]}
         opp_stat = {"STR2":opponent_monster[2],"PWR2":opponent_monster[3],"EVN2":opponent_monster[4]}
-        # Need logic to determine what view to show 
+
+        amount = round(amount, 4)
         pagination_view = FightingView(STR1=chal_stat["STR1"], PWR1=chal_stat["PWR1"], EVN1=chal_stat["EVN1"], \
                                        STR2=opp_stat["STR2"], PWR2=opp_stat["PWR2"], EVN2=opp_stat["EVN2"], \
-                                       challenger = interaction.user.id, opponent = member.id)
+                                       challenger = interaction.user.id, opponent = member.id, amount = amount)
         pagination_view.chal_monster = chal_monster
         pagination_view.opp_monster = opp_monster
+        pagination_view.chal = interaction.user
+        pagination_view.opp = member
         await pagination_view.send(interaction)
 
     @bot.tree.command(name="nick")
@@ -483,12 +497,20 @@ def run():
     async def nickname(interaction: discord.Interaction, old: str, new: str):
 
         # If nickname is too long
-        if len(new) > 20:
-            await interaction.send_message(content = "Nickname must not exceed 20 characters.")
+        if len(new) > 12:
+            await interaction.send_message(content = "Nickname must not exceed 12 characters.")
             return()
         
         await monster_nick(interaction, old, new)
 
+    @bot.tree.command(name = "upgrade")
+    @app_commands.describe(monster_nick = "Name of monster to upgrade.")
+    async def upgrade(interaction: discord.Interaction, monster_nick: str):
+        if await ownership(interaction, monster_nick) in ("Exist", "Own"):
+            return()
+        menu = UpgradeMonster(monster_nick=monster_nick, user=interaction.user.id)
+        menu.username = interaction.user
+        await menu.send(interaction)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

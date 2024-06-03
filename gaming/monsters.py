@@ -144,3 +144,15 @@ def gen_rarity():
     RARITY = model.generate_sample()
 
     return(RARITY)
+
+async def stat_upgrade(interaction, nick, type):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+    cur.execute(f"SELECT bonus_left from usermonsters \
+                WHERE userid = '{interaction.user.id}' AND guildid = '{interaction.guild.id}' AND monsternick = '{nick}'")
+    left = cur.fetchone()
+    if left <= 0:
+        return(0)
+    
+    cur.execute(f"UPDATE usermonsters \ 
+                SET {type}")

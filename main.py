@@ -461,7 +461,11 @@ def run():
         """
             Creating a combat system.
         """
-        if amount < 0:
+
+        if interaction.user.id == member.id:
+            await interaction.response.send_message(content = "You can't duel yourself.")
+            return()
+        elif amount < 0:
             await interaction.response.send_message(content = "Wager must be 0 or greater.")
             return()
         
@@ -469,6 +473,7 @@ def run():
             or amount > round(user_balance(member.id, interaction.guild.id)[0][0],4):
             await interaction.response.send_message(content = "User balance insufficient.")
             return()
+        
 
         challenger_monster = await monster_combat(interaction, interaction.guild.id, interaction.user.id, mine)
         opponent_monster = await monster_combat(interaction, interaction.guild.id, member.id, theirs)

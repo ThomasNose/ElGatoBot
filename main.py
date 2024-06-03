@@ -23,7 +23,7 @@ from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from commands.suggestions.suggestions import suggest
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
-from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat
+from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat, ownership
 from gaming.currency import message_money_gain, user_balance, pay_user
 from gaming.classes import PaginationView, FightingView, UpgradeMonster
 
@@ -174,7 +174,7 @@ def run():
 
     @bot.tree.command(name="balance", description="Discord member's balance")
     async def balance(interaction: discord.Interaction):
-        userbalance = user_balance(interaction)
+        userbalance = user_balance(interaction.user.id, interaction.guild.id)
         
         embed = discord.Embed(
             colour=discord.Colour.dark_teal(),
@@ -495,7 +495,10 @@ def run():
     @bot.tree.command(name = "upgrade")
     @app_commands.describe(monster_nick = "Name of monster to upgrade.")
     async def upgrade(interaction: discord.Interaction, monster_nick: str):
-        menu = UpgradeMonster(monster_nick=monster_nick)
+        if await ownership(interaction, monster_nick) in ("Exist", "Own"):
+            return()
+        menu = UpgradeMonster(monster_nick=monster_nick, user=interaction.user.id)
+        menu.username = interaction.user
         await menu.send(interaction)
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

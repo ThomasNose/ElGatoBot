@@ -33,12 +33,12 @@ def message_money_gain(message):
     return()
 
 
-def user_balance(message):
+def user_balance(user, guild):
     conn = connect_db(postgres)
     cur = conn.cursor()
     cur.execute(f"SELECT b.amount, c.currencyname FROM user_balance b \
                 JOIN currencies c on b.currencyid = c.currencyid \
-                WHERE b.userid = '{message.user.id}' and b.guildid = '{message.guild.id}' and c.currencyid = 1")
+                WHERE b.userid = '{user}' and b.guildid = '{guild}' and c.currencyid = 1")
     results = cur.fetchall()
     conn.close()
     return(results)

@@ -2,7 +2,8 @@ import discord
 import math
 import random
 
-from  gaming.currency import balance_both, combat_pay
+from gaming.currency import balance_both, combat_pay, user_balance
+from gaming.monsters import stat_upgrade, monster_combat
 
 class PaginationView(discord.ui.View):
     """
@@ -287,34 +288,52 @@ class FightingView(discord.ui.View):
 
 
 class UpgradeMonster(discord.ui.View):
-    def __init__(self, monster_nick):
+    def __init__(self, monster_nick, user):
         super().__init__()
         self.nick = monster_nick
+        self.user = user
+        self.bal = None
 
     async def send(self, interaction):
         await interaction.response.send_message(view=self)
         self.message = await interaction.original_response()
-        await self.update_message(self.nick)
+        stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+        #self.bal = self.user_bal(interaction)
+        self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+        await self.update_message(stats)
 
-    async def update_message(self, nick):
-        self.update_buttons()
-        await self.message.edit(embed=self.create_embed(nick), view = self)
+    async def update_message(self, stats):
+        self.update_buttons(stats[5])
+        bal = self.bal
+        await self.message.edit(embed=self.create_embed(self.nick, stats[0], stats[2], stats[3], stats[4], stats[5]), view = self)
 
 
-    def create_embed(self, nick):
-        embed = discord.Embed(title = "Upgrade menu.", \
-                              description = f"{nick}")
-        embed.add_field(name = "Test", value = "STR", inline=True)
+    def create_embed(self, nick, monster, str, pwr, evn, bonus):
+        embed = discord.Embed(title = f"Upgrade menu for {self.username}'s \n{monster}, {nick}.", \
+                              description = f"Stat cost: {(11-bonus) * 5} - Balance: {self.bal} - bonus left: {bonus}")
+        embed.add_field(name = "Strength", value = f"{str}", inline=True)
+        embed.add_field(name = "Power", value = f"{pwr}", inline=True)
+        embed.add_field(name = "Evasion", value = f"{evn}", inline=True)
         return(embed)
     
 
-    def update_buttons(self):
-        print("Placeholder")
+    def update_buttons(self, bonus):
+        if bonus <= 0 or self.bal < (11-bonus) * 5:
+            self.STR.disabled = True
+        else:
+            self.STR.disabled = False
 
 
-    @discord.ui.button(label="Upgrade STR", style = discord.ButtonStyle.primary)
+    @discord.ui.button(label="STR", style = discord.ButtonStyle.primary)
     async def STR(self, interaction:discord.Interaction, button: discord.ui.Button):
-        #if interaction.user.id == self.opponent:
-        await interaction.response.defer()
-        self.update_buttons()
-        await interaction.message.edit(embed=self.create_embed(self.nick), view = self)
+        if interaction.user.id == self.user:
+            await interaction.response.defer()
+            str_stat = await stat_upgrade(interaction, self.nick, "STR")
+            stats = await monster_combat(interaction, interaction.guild.id, interaction.user.id, self.nick)
+
+            # if 0 then no bonus left, if "bal" then no money
+            if str_stat == 0 or str_stat == "bal":
+                self.update_buttons(0)
+            else:
+                self.bal = round(user_balance(interaction.user.id, interaction.guild.id)[0][0],4)
+                await self.update_message(stats)

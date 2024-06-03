@@ -470,9 +470,10 @@ def run():
             await interaction.response.send_message(content = "User balance insufficient.")
             return()
 
-
         challenger_monster = await monster_combat(interaction, interaction.guild.id, interaction.user.id, mine)
         opponent_monster = await monster_combat(interaction, interaction.guild.id, member.id, theirs)
+        if None in (challenger_monster,opponent_monster):
+            return()
 
         # The actual monster
         chal_monster = challenger_monster[1]

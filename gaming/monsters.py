@@ -104,9 +104,10 @@ async def monster_combat(interaction, guildid, user, monster_nick):
     "
     cur.execute(query)
     stats = cur.fetchone()
+
     if stats == None:
         await interaction.response.send_message(content = f"{monster_nick} nickname doesn't exist. See nicknames in parentheses of /collection user list")
-        return()
+        return(None)
     else:
         return(stats)
 

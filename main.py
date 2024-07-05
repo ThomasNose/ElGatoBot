@@ -22,6 +22,7 @@ from utils.giveaways import giveaway_create, giveaway_delete, giveaway_list, giv
 from commands.flex.flex import flexing, insult
 from commands.chatgpt.chatgpt import gpt, imagegpt
 from commands.suggestions.suggestions import suggest
+from commands.userlogs.retrieve import user_logs
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat, ownership
 from gaming.currency import message_money_gain, user_balance, pay_user
@@ -126,16 +127,16 @@ def run():
 
     
         # Logs user messages - not sure if this retains upon the creation of each new docker image - doesn't really matter.
-        path = "logs/"+f"{str(message.author.id)}"
+        path = f"logs/{str(message.author.id)}/{message.guild.id}"
         makedirectory(path)
         if message.attachments:
-            path = "logs/"+f"{str(message.author.id)}"+"/"+"images/"
+            path = f"{path}/images/"
             makedirectory(path)
             for image in message.attachments:
-                await image.save("logs/"+f"{str(message.author.id)}"+"/"+"images/"+f"{image.filename}")
+                await image.save(f"{path}{image.filename}")
         msg = message
-        with open(f"logs/{message.author.id}/data.txt", "a") as n:
-            n.write("\n" + str(msg.created_at) + f"({str(msg.channel)})" + " " + str(msg.author) + ": " + msg.content)
+        with open(f"{path}/data.txt", "a") as n:
+            n.write(str(msg.created_at) + ", " + f"Channel: ({str(msg.channel)})" + ", " + str(msg.author) + ": " + msg.content + "\n")
 
 
 
@@ -503,7 +504,7 @@ def run():
 
         # If nickname is too long
         if len(new) > 12:
-            await interaction.send_message(content = "Nickname must not exceed 12 characters.")
+            await interaction.response.send_message(content = "Nickname must not exceed 12 characters.")
             return()
         
         await monster_nick(interaction, old, new)
@@ -516,7 +517,21 @@ def run():
         menu = UpgradeMonster(monster_nick=monster_nick, user=interaction.user.id)
         menu.username = interaction.user
         await menu.send(interaction)
+        
+    @bot.tree.command(name = "userlogs")
+    @app_commands.describe(member = "User.", num = "How many messages to return.")
+    async def userlogs(interaction: discord.Interaction, member: discord.Member, num: int):
+        messages = user_logs(member.id, interaction.guild.id, num)
+        print(len(messages), num)
+        if len(messages) == num:
+            cont = [f"``{str(msg)}``" for msg in messages]
+            cont = "\n".join(cont)
+            return(await interaction.response.send_message(content = cont))
+        else:
+            return(await interaction.response.send_message(content = "User doesn't have that many messages."))
 
+
+    
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 

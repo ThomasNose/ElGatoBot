@@ -65,7 +65,7 @@ class audio():
             
         except Exception as e:
             # Song already playing
-            msg = await interaction.response.send_message(content = "There was an exception.")
+            msg = await interaction.response.send_message(content = f"{e}: **YOUTUBE HAS RESTRICTED USER MADE BOTS**")
             print(e)
             return()
 

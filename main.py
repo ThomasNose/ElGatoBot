@@ -433,29 +433,6 @@ def run():
             await audio.audio_clear(interaction)
 
 
-    #@bot.tree.command(name="reaction", description="Testing reactions.")
-    #async def react(interaction: discord.Interaction):
-    #    await interaction.response.send_message(content="This is a test reaction message")
-    #    message = await interaction.original_response()
-    #    await message.add_reaction(discord.utils.get(interaction.guild.emojis, name="happycat"))
-        #interaction.message.add_reaction(emoji = ":ok_hand:")
-        
-
-    #@bot.event
-    #async def on_raw_reaction_add(payload):
-    #    # Check if the reaction is added to a specific message ID
-    #    channel = bot.get_channel(payload.channel_id)
-    #    message = await channel.fetch_message(payload.message_id)
-#
-    #    user = bot.get_user(payload.user_id)
-    #    emoji = payload.emoji
-#
-    #    if str(emoji).split(":")[1] == "happycat" and payload.user_id != botid and message.content != "Clicked":  # Replace with your server emoji string
-    #        await message.edit(content = "Clicked")
-    #    elif message.content == "Clicked":
-    #        pass
-
-
     @bot.tree.command(name="fight")
     @app_commands.describe(member = "Who to fight", mine = "My monster (must be nickname)", theirs = "Their monster (must be nickname)", amount = "Wager amount.")
     async def combat(interaction: discord.Interaction, member: discord.Member, mine: str, theirs: str, amount: float):

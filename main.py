@@ -27,6 +27,7 @@ from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_g
 from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat, ownership
 from gaming.currency import message_money_gain, user_balance, pay_user
 from gaming.classes import PaginationView, FightingView, UpgradeMonster
+from gaming.racing.race import horse_race
 
 
 logger = settings.logging.getLogger("bot")
@@ -506,7 +507,11 @@ def run():
             return(await interaction.response.send_message(content = cont))
         else:
             return(await interaction.response.send_message(content = "User doesn't have that many messages."))
-
+        
+    @bot.tree.command(name = "race")
+    async def racing(interaction: discord.Interaction):
+        race_instance = horse_race(interaction)
+        state = await race_instance.start_race()
 
     
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

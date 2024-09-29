@@ -389,12 +389,12 @@ class horse_race(discord.ui.View):
         # The only variable that impacts the length they "run" is the 80 * " "
         # so regardless of how it looks, they're all even
         self.track_top = "**==================================================================**"
-        self.track_1 = "**1  |**" + 3 * "\u2003" + ":horse_racing:"
-        self.track_2 = "**2 |**" + 6 * "\u2003" + ":horse_racing:"
-        self.track_3 = "**3 |**" + 6 * "\u2003" + ":horse_racing:"
-        self.track_4 = "**4 |**" + 6 * "\u2003" + ":horse_racing:"
-        self.track_5 = "**5 |**" + 6 * "\u2003" + ":horse_racing:"
-        self.track_6 = "**6 |**" + 6 * "\u2003" + ":horse_racing:"
+        self.track_1 = "**1  |**" + 30 * "\u2003" + ":horse_racing:"
+        self.track_2 = "**2 |**" + 30 * "\u2003" + ":horse_racing:"
+        self.track_3 = "**3 |**" + 30 * "\u2003" + ":horse_racing:"
+        self.track_4 = "**4 |**" + 30 * "\u2003" + ":horse_racing:"
+        self.track_5 = "**5 |**" + 30 * "\u2003" + ":horse_racing:"
+        self.track_6 = "**6 |**" + 30 * "\u2003" + ":horse_racing:"
         self.track_bottom = "**==================================================================**"
 
         self.track_pos = {"1":None,
@@ -418,7 +418,7 @@ class horse_race(discord.ui.View):
         if content and winner:
             embed.add_field(name="Winners", value=content, inline=False)
         elif content:
-            embed.add_field(name="Track", value=content, inline=False)
+            embed.add_field(name="Track - Starting in 30 seconds.", value=content, inline=False)
         else:
             embed.add_field(name="Track", value=self.race, inline=False)
         return embed
@@ -482,7 +482,7 @@ class horse_race(discord.ui.View):
         # Create the event
         await event(self.message.id, self.interaction.guild.id)
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(30)
         
         self.update_buttons()
 

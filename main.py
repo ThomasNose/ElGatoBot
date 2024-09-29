@@ -26,8 +26,7 @@ from commands.userlogs.retrieve import user_logs
 from trading.trades import trade_monsters, trade_accept, trade_cancel, monster_give
 from gaming.monsters import monster_drop, my_monsters, my_monsters_nicks, monster_nick, monster_combat, ownership
 from gaming.currency import message_money_gain, user_balance, pay_user
-from gaming.classes import PaginationView, FightingView, UpgradeMonster
-from gaming.racing.race import horse_race
+from gaming.classes import PaginationView, FightingView, UpgradeMonster, horse_race
 
 
 logger = settings.logging.getLogger("bot")
@@ -500,7 +499,6 @@ def run():
     @app_commands.describe(member = "User.", num = "How many messages to return.")
     async def userlogs(interaction: discord.Interaction, member: discord.Member, num: int):
         messages = user_logs(member.id, interaction.guild.id, num)
-        print(len(messages), num)
         if len(messages) == num:
             cont = [f"``{str(msg)}``" for msg in messages]
             cont = "\n".join(cont)
@@ -511,7 +509,8 @@ def run():
     @bot.tree.command(name = "race")
     async def racing(interaction: discord.Interaction):
         race_instance = horse_race(interaction)
-        state = await race_instance.start_race()
+        #state = await race_instance.start_race()
+        await race_instance.start_race()
 
     
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)

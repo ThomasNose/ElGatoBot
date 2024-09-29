@@ -2,6 +2,7 @@ import settings
 import uuid
 from utils.connect_db import connect_db
 from datetime import datetime
+import json
 
 postgres = settings.POSTGRES_LOGIN_DETAILS
 
@@ -89,3 +90,57 @@ async def combat_pay(user, guild, currency, amount):
                 SET amount = amount + {amount} \
                 WHERE userid = '{user}' AND guildid = '{guild}' and currencyid = {currency}")
     conn.commit()
+
+async def bet(user, guild, amount, msg, payload):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+
+    bal = round(user_balance(user, guild)[0][0], 4)
+
+    # Is their balance is greater than the bet amount
+    if bal >= amount:
+
+        cur.execute(f"UPDATE user_balance \
+                    SET amount = amount - {amount} \
+                    WHERE userid = '{user}' AND guildid = '{guild}' and currencyid = 1")
+    
+        id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{user} + {guild} + {str(datetime.now)} + {msg} + {bal}")
+        
+        cur.execute(f"INSERT INTO transactions \
+                    SELECT '{id}', '{msg}', '{user}', '{guild}', {-amount}, '{payload}', 1, current_timestamp")
+        
+        conn.commit()
+
+async def bet_payout(guild, msg):
+    conn = connect_db(postgres)
+    cur = conn.cursor()
+
+    cur.execute(f"SELECT winner FROM events \
+                WHERE guildid = '{guild}' and discordref = '{msg}'")
+    winner = cur.fetchall()[0][0]
+
+    cur.execute(f"SELECT userid, amount, payload, created_at FROM transactions \
+                WHERE guildid = '{guild}' and discordref = '{msg}'")
+    
+    user_winners = []
+
+    for value in cur.fetchall():
+        user = value[0]
+        amount = value[1]
+        sel = json.loads(value[2])["horse"]
+        ts = value[3]
+
+        if sel == int(winner):
+            user_winners.append(f"<@{user}>")
+            cur.execute(f"UPDATE user_balance \
+                        SET amount = amount + abs({2 * amount}) \
+                        WHERE userid = '{user}' AND guildid = '{guild}' and currencyid = 1")
+            conn.commit()
+
+            id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{user} + {guild} + {str(ts)} + {msg}")
+
+            cur.execute(f"INSERT INTO transactions \
+                    SELECT '{id}', '{msg}', '{user}', '{guild}', abs({2 * amount}), Null, 1, current_timestamp")
+            conn.commit()
+    
+    return(list(set(user_winners)))

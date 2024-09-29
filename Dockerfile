@@ -15,8 +15,8 @@ RUN pip install psycopg-binary==3.1.18
 RUN pip install requests==2.31.0
 RUN pip install boto3
 RUN pip install python-dotenv==1.0.1
-#RUN pip install yt_dlp
-#RUN pip install ffmpeg
+RUN pip install yt_dlp
+RUN pip install ffmpeg
 RUN pip install PyNaCl
 
 # Download ffmpeg archive, not needed atm as youtube functionality scuffed
